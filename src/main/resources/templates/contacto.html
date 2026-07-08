@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+  <title th:text="${nombreTienda} + ' — Contacto'">MetalMax — Contacto</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+  <div class="mm-page-header">
+    <div class="container py-4">
+      <h2 class="oswald text-white mb-0" style="font-size:2rem;text-transform:uppercase">
+        <i class="bi bi-envelope me-2"></i>Contacto
+      </h2>
+    </div>
+  </div>
+
+  <div class="container my-5">
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4">
+        <div class="acceso-card text-center">
+          <i class="bi bi-telephone-fill fs-2 text-danger mb-2"></i>
+          <p class="oswald mb-1" style="font-size:1.1rem">TELÉFONO</p>
+          <p class="text-muted mb-0" th:text="${telefono}">(01) 456-7890</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="acceso-card text-center">
+          <i class="bi bi-envelope-fill fs-2 text-danger mb-2"></i>
+          <p class="oswald mb-1" style="font-size:1.1rem">CORREO</p>
+          <p class="text-muted mb-0" th:text="${contacto}">ventas@ferrovoz.pe</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="acceso-card text-center">
+          <i class="bi bi-geo-alt-fill fs-2 text-danger mb-2"></i>
+          <p class="oswald mb-1" style="font-size:1.1rem">DIRECCIÓN</p>
+          <p class="text-muted mb-0" th:text="${direccion}">Lima, Perú</p>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-5">
+      <a th:href="@{/}" class="btn btn-outline-secondary oswald px-4">
+        <i class="bi bi-arrow-left me-2"></i>VOLVER AL INICIO
+      </a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

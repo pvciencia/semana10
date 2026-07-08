@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+  <title th:text="${producto.nombre} + ' — MetalMax'">Detalle — MetalMax</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+  <div class="container my-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a th:href="@{/}" class="text-danger">Inicio</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/productos}" class="text-danger">Inventario</a></li>
+        <li class="breadcrumb-item active" th:text="${producto.nombre}">Producto</li>
+      </ol>
+    </nav>
+
+    <div class="row g-4 align-items-start">
+      <!-- Imagen grande -->
+      <div class="col-md-5">
+        <div class="detalle-img-wrap">
+          <img th:src="@{${producto.imagen}}"
+               th:alt="${producto.nombre}"
+               class="img-fluid rounded-3 w-100"
+               style="max-height:380px;object-fit:cover;"
+               onerror="this.onerror=null; this.src='/img/productos/sin-imagen.jpg'">
+        </div>
+      </div>
+
+      <!-- Info producto -->
+      <div class="col-md-7">
+        <span class="prod-cat-badge oswald mb-3 d-inline-block"
+              style="background:#2C3E50;color:#fff;font-size:.75rem"
+              th:text="${producto.categoria}">Categoría</span>
+
+        <h1 class="oswald mb-2" style="font-size:2rem;color:#2C3E50" th:text="${producto.nombre}">Nombre</h1>
+
+        <p class="text-muted mb-3" th:text="${producto.descripcion}">Descripción</p>
+
+        <!-- Precio -->
+        <div class="mb-3 p-3 rounded-3" style="background:#fff5f5;border-left:4px solid #C0392B">
+          <p class="text-muted small mb-1">PRECIO POR <span th:text="${producto.unidad.toUpperCase()}">UNIDAD</span></p>
+          <p class="prod-precio mb-0" style="font-size:2rem">
+            S/ <span th:text="${#numbers.formatDecimal(producto.precio, 1, 2)}">0.00</span>
+          </p>
+        </div>
+
+        <!-- Stock -->
+        <div class="row g-2 mb-4">
+          <div class="col-6">
+            <div class="p-3 bg-white rounded-3 text-center border">
+              <div class="text-muted small">Stock disponible</div>
+              <span class="badge fs-6 mt-1"
+                    th:classappend="${producto.estadoStock == 'stock-ok'} ? 'bg-success' : (${producto.estadoStock == 'stock-low'} ? 'bg-warning text-dark' : 'bg-danger')"
+                    th:text="${producto.etiquetaStock}">24</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 bg-white rounded-3 text-center border">
+              <div class="text-muted small">Categoría</div>
+              <div class="fw-bold oswald" th:text="${producto.categoria}">Herramientas</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones acción -->
+        <div class="d-flex gap-3 flex-wrap">
+          <a th:href="@{/ventas/nuevo}"
+             class="btn btn-rojo oswald px-4 py-2 fw-bold"
+             th:classappend="${producto.stock == 0} ? 'disabled' : ''">
+            <i class="bi bi-cart-plus me-2"></i>REGISTRAR VENTA
+          </a>
+          <a th:href="@{/productos}" class="btn btn-outline-secondary oswald px-4 py-2">
+            <i class="bi bi-arrow-left me-2"></i>VOLVER
+          </a>
+        </div>
+        <div th:if="${producto.stock == 0}" class="alert alert-danger mt-3 d-flex align-items-center gap-2">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>Este producto está <strong>sin stock</strong> actualmente.</span>
+        </div>
+        <div th:if="${producto.stock > 0 and producto.stock <= 5}" class="alert alert-warning mt-3 d-flex align-items-center gap-2">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>¡Stock bajo! Solo quedan <strong th:text="${producto.stock}">3</strong> unidades.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

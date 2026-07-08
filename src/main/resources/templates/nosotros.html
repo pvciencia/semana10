@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+  <title th:text="${nombreTienda} + ' — Nosotros'">MetalMax — Nosotros</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+  <div class="mm-page-header">
+    <div class="container py-4">
+      <p class="text-white-50 mb-1" style="font-size:.78rem;letter-spacing:3px;text-transform:uppercase">La empresa</p>
+      <h2 class="oswald text-white mb-0" style="font-size:2rem;text-transform:uppercase">
+        <i class="bi bi-info-circle me-2"></i>Nosotros
+      </h2>
+    </div>
+  </div>
+
+  <div class="container my-5">
+    <div class="row g-4 align-items-center">
+      <div class="col-md-6">
+        <p class="text-muted mb-1" style="font-size:.78rem;letter-spacing:3px;text-transform:uppercase">Quiénes somos</p>
+        <h2 class="oswald mb-3" style="font-size:2.2rem;color:#2C3E50">
+          FERRO<span style="color:#C0392B">VOZ</span> FERRETERÍA
+        </h2>
+        <p class="text-muted">
+          Somos una ferretería con más de 10 años de experiencia ofreciendo herramientas,
+          materiales de construcción y productos eléctricos de calidad para profesionales
+          y particulares en Lima, Perú.
+        </p>
+        <p class="text-muted">
+          Nuestro sistema de gestión fue desarrollado con <strong>Spring Boot + Thymeleaf</strong>
+          como parte del curso de Marcos de Desarrollo Web de la Universidad Tecnológica del Perú (UTP).
+        </p>
+        <div class="d-flex flex-wrap gap-3 mt-4">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-danger"></i>
+            <span>+12 categorías de productos</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-danger"></i>
+            <span>Atención personalizada</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-danger"></i>
+            <span>Precios competitivos</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="acceso-card text-center p-5">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" class="mb-3">
+            <rect width="80" height="80" rx="16" fill="#C0392B"/>
+            <path d="M20 40L35 25L45 35L60 20" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 58L29 48L40 54L60 40" stroke="#F39C12" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p class="oswald mb-1" style="font-size:1.5rem;color:#2C3E50" th:text="${nombreTienda}">FERROVOZ</p>
+          <p class="text-muted mb-0">Desarrollado con Spring Boot + Thymeleaf<br> UTP <span th:text="${anio != null ? anio : '2026'}">2026</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datos de contacto -->
+    <div class="row g-4 mt-4">
+      <div class="col-md-4">
+        <div class="acceso-card text-center">
+          <i class="bi bi-telephone-fill fs-2 text-danger mb-2"></i>
+          <p class="oswald mb-1" style="font-size:1.1rem">TELÉFONO</p>
+          <p class="text-muted mb-0" th:text="${telefono}">(01) 456-7890</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="acceso-card text-center">
+          <i class="bi bi-envelope-fill fs-2 text-danger mb-2"></i>
+          <p class="oswald mb-1" style="font-size:1.1rem">CORREO</p>
+          <p class="text-muted mb-0" th:text="${contacto}">ventas@ferrovoz.pe</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="acceso-card text-center">
+          <i class="bi bi-geo-alt-fill fs-2 text-danger mb-2"></i>
+          <p class="oswald mb-1" style="font-size:1.1rem">DIRECCIÓN</p>
+          <p class="text-muted mb-0" th:text="${direccion}">Lima, Perú</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-5">
+      <a th:href="@{/}" class="btn btn-outline-secondary oswald px-4">
+        <i class="bi bi-arrow-left me-2"></i>VOLVER AL INICIO
+      </a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

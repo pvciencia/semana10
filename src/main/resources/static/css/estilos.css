@@ -1,0 +1,189 @@
+/* ════════════════════════════════
+   MetalMax Ferretería — estilos.css
+   Spring Boot + Thymeleaf / UTP 2026
+   ════════════════════════════════ */
+
+:root {
+  --rojo:      #C0392B;
+  --rojo-osc:  #922B21;
+  --acero:     #2C3E50;
+  --acero-med: #34495E;
+  --plata:     #BDC3C7;
+  --fondo:     #F2F3F4;
+  --amarillo:  #F39C12;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background-color: var(--fondo);
+  margin: 0;
+}
+
+.oswald { font-family: 'Oswald', sans-serif; }
+h1, h2, h3 { font-family: 'Oswald', sans-serif; }
+
+/* ── NAVBAR ── */
+.mm-navbar {
+  background-color: var(--acero) !important;
+  border-bottom: 4px solid var(--rojo);
+}
+.mm-navbar .navbar-brand { font-family: 'Oswald', sans-serif; font-size: 1.5rem; letter-spacing: 2px; }
+.mm-navbar .nav-link { font-family: 'Oswald', sans-serif; font-size: .95rem; letter-spacing: 1px; }
+.mm-navbar .nav-link:hover, .mm-navbar .nav-link.active { color: var(--amarillo) !important; }
+
+/* ── HERO ── */
+.hero-wrap {
+  position: relative;
+  background-color: var(--acero);
+  overflow: hidden;
+  min-height: 480px;
+}
+.hero-wrap::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='%232C3E50'/%3E%3Cline x1='0' y1='60' x2='60' y2='0' stroke='%23ffffff08' stroke-width='1'/%3E%3Ccircle cx='60' cy='0' r='2' fill='%23C0392B22'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+}
+.hero-wrap::after {
+  content: "";
+  position: absolute;
+  top: -80px; right: -60px;
+  width: 420px; height: 700px;
+  background: var(--rojo);
+  transform: rotate(-12deg);
+  opacity: 0.15;
+  border-radius: 4px;
+}
+.hero-content { position: relative; z-index: 2; padding: 60px 0 48px; }
+.hero-tag {
+  display: inline-block;
+  background: var(--rojo); color: #fff;
+  font-family: 'Oswald', sans-serif;
+  font-size: .72rem; letter-spacing: 4px;
+  padding: 5px 16px; text-transform: uppercase; margin-bottom: 14px;
+}
+.hero-titulo {
+  font-size: clamp(2.8rem, 6vw, 4.8rem);
+  line-height: 1; color: #fff; text-transform: uppercase;
+}
+.hero-titulo span { color: var(--rojo); }
+.hero-sub { color: var(--plata); font-size: 1.05rem; max-width: 480px; margin-top: 10px; }
+
+/* Hero stats panel */
+.hero-stats-panel {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 22px 18px;
+}
+.hero-stat-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.hero-stat-row:last-child { border-bottom: none; }
+.hero-stat-icon {
+  width: 42px; height: 42px; background: var(--rojo); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; color: #fff; flex-shrink: 0;
+}
+.hero-stat-num { font-family: 'Oswald', sans-serif; font-size: 1.5rem; color: #fff; line-height: 1; }
+.hero-stat-lbl { font-size: .77rem; color: var(--plata); }
+
+/* ── BOTONES ── */
+.btn-rojo { background: var(--rojo); border: none; color: #fff; font-family: 'Oswald', sans-serif; letter-spacing: 1px; }
+.btn-rojo:hover, .btn-rojo:focus { background: var(--rojo-osc); color: #fff; }
+.btn-rojo.disabled, .btn-rojo:disabled { background: #888; }
+.btn-acero-out { border: 2px solid rgba(255,255,255,.35); color: #fff; font-family: 'Oswald', sans-serif; }
+.btn-acero-out:hover { background: rgba(255,255,255,.1); color: #fff; border-color: #fff; }
+
+/* ── PAGE HEADER ── */
+.mm-page-header {
+  background-color: var(--acero);
+  border-bottom: 4px solid var(--rojo);
+}
+.mm-badge-stat {
+  background: rgba(255,255,255,.1);
+  color: #fff; border-radius: 6px;
+  font-family: 'Oswald', sans-serif; font-size: .85rem;
+}
+
+/* ── ACCESO CARDS (inicio) ── */
+.acceso-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
+  border-top: 4px solid var(--rojo);
+  transition: transform .15s, box-shadow .15s;
+  color: var(--acero);
+}
+.acceso-card:hover { transform: translateY(-4px); box-shadow: 0 8px 22px rgba(0,0,0,.12); }
+
+/* ── PRODUCT CARDS ── */
+.prod-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0,0,0,.08);
+  transition: transform .18s, box-shadow .18s;
+  display: flex; flex-direction: column;
+}
+.prod-card:hover { transform: translateY(-5px); box-shadow: 0 10px 28px rgba(0,0,0,.14); }
+.border-warning-card { border: 2px solid var(--amarillo); }
+
+/* Imagen producto */
+.prod-img-wrap {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: #f0ede5;
+}
+.prod-imagen {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .3s;
+}
+.prod-card:hover .prod-imagen { transform: scale(1.05); }
+.prod-cat-overlay {
+  position: absolute; top: 10px; left: 10px;
+  background: rgba(44,62,80,.85);
+  color: #fff; font-size: .68rem; letter-spacing: 2px;
+  padding: 3px 10px; border-radius: 3px; text-transform: uppercase;
+}
+
+/* Badges stock */
+.prod-cat-badge {
+  font-family: 'Oswald', sans-serif; font-size: .7rem;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 3px;
+}
+.stock-ok  { background: #d4edda; color: #155724; }
+.stock-low { background: #fff3cd; color: #856404; }
+.stock-out { background: #f8d7da; color: #721c24; }
+
+.prod-nombre { font-family: 'Oswald', sans-serif; font-size: 1.1rem; color: var(--acero); }
+.prod-precio { font-family: 'Oswald', sans-serif; font-size: 1.45rem; color: var(--rojo); }
+
+/* ── FOOTER ── */
+.mm-footer {
+  background: var(--acero);
+  border-top: 4px solid var(--rojo);
+}
+
+/* ── FORMULARIOS ── */
+.form-control:focus, .form-select:focus {
+  border-color: var(--rojo);
+  box-shadow: 0 0 0 .2rem rgba(192,57,43,.15);
+}
+
+/* ── BREADCRUMB ── */
+.breadcrumb-item a { text-decoration: none; }
+.breadcrumb-item.active { color: var(--acero); font-weight: 600; }
+
+/* ── DETALLE IMAGEN ── */
+.detalle-img-wrap {
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,.12);
+}

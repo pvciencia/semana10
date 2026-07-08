@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+  <title th:text="${nombreTienda} + ' — Historial de Ventas'">FerroVoz — Historial</title>
+  <style>
+    .filtro-activo { border-color: var(--rojo) !important; background: #fff5f5; }
+    .btn-accion { font-size: .78rem; padding: 3px 10px; font-family: 'Oswald', sans-serif; letter-spacing: .5px; }
+    .tabla-historial thead th { background: #2C3E50; color: #fff; font-family: 'Oswald', sans-serif; letter-spacing: 1px; font-size: .88rem; border: none; vertical-align: middle; }
+    .tabla-historial tbody tr:hover { background: #f8f9fa; }
+    .badge-estado { font-size: .75rem; padding: 4px 10px; letter-spacing: .5px; }
+    .stat-pill { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; padding: 8px 18px; display: inline-block; }
+    .stat-num  { font-family: 'Oswald', sans-serif; font-size: 1.4rem; color: #fff; line-height: 1; }
+    .stat-lbl  { font-size: .7rem; color: #BDC3C7; letter-spacing: 1px; text-transform: uppercase; }
+    .search-bar .form-control { border-right: none; }
+    .search-bar .btn { border-left: none; }
+  </style>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+  <!-- ── PAGE HEADER ── -->
+  <div class="mm-page-header">
+    <div class="container py-4">
+      <p class="text-white-50 mb-1" style="font-size:.78rem;letter-spacing:3px;text-transform:uppercase">Módulo de Ventas</p>
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <h2 class="oswald text-white mb-0" style="font-size:2rem;text-transform:uppercase">
+          <i class="bi bi-journal-text me-2"></i>Historial de Ventas Registradas
+        </h2>
+        <div class="d-flex gap-3">
+          <div class="stat-pill text-center">
+            <div class="stat-num text-warning" th:text="${totalPendientes}">0</div>
+            <div class="stat-lbl">Pendientes</div>
+          </div>
+          <div class="stat-pill text-center">
+            <div class="stat-num text-success" th:text="${totalConfirm}">0</div>
+            <div class="stat-lbl">Confirmados</div>
+          </div>
+          <div class="stat-pill text-center">
+            <div class="stat-num text-danger" th:text="${totalCancel}">0</div>
+            <div class="stat-lbl">Cancelados</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container my-4">
+
+    <!-- ── BARRA FILTROS ── -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4 p-3">
+      <div class="row g-2 align-items-center">
+        <!-- Búsqueda libre -->
+        <div class="col-md-5">
+          <form th:action="@{/ventas/historial}" method="get" class="d-flex search-bar">
+            <input type="text" name="q" class="form-control"
+                   th:value="${q}"
+                   th:classappend="${!q.isEmpty()} ? 'filtro-activo' : ''"
+                   placeholder="Buscar cliente, método de pago...">
+            <button class="btn btn-outline-secondary" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+            <a th:if="${!q.isEmpty()}" th:href="@{/ventas/historial}"
+               class="btn btn-outline-danger ms-1" title="Limpiar búsqueda">
+              <i class="bi bi-x-lg"></i>
+            </a>
+          </form>
+        </div>
+        <!-- Filtro por estado -->
+        <div class="col-md-4">
+          <div class="d-flex gap-2">
+            <a th:href="@{/ventas/historial}"
+               th:classappend="${estadoFiltro.isEmpty()} ? 'btn-rojo' : 'btn-outline-secondary'"
+               class="btn btn-sm oswald px-3">TODOS</a>
+            <a th:href="@{/ventas/historial(estado='Pendiente')}"
+               th:classappend="${estadoFiltro == 'Pendiente'} ? 'btn-warning' : 'btn-outline-warning'"
+               class="btn btn-sm oswald px-3">PENDIENTE</a>
+            <a th:href="@{/ventas/historial(estado='Confirmado')}"
+               th:classappend="${estadoFiltro == 'Confirmado'} ? 'btn-success' : 'btn-outline-success'"
+               class="btn btn-sm oswald px-3">CONFIRMADO</a>
+            <a th:href="@{/ventas/historial(estado='Cancelado')}"
+               th:classappend="${estadoFiltro == 'Cancelado'} ? 'btn-danger' : 'btn-outline-danger'"
+               class="btn btn-sm oswald px-3">CANCELADO</a>
+          </div>
+        </div>
+        <!-- Botón nuevo pedido -->
+        <div class="col-md-3 text-md-end">
+          <a th:href="@{/ventas/nuevo}" class="btn btn-rojo oswald fw-bold px-4">
+            <i class="bi bi-cart-plus me-1"></i>NUEVA VENTA
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TABLA ── -->
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table tabla-historial table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th class="ps-3">#</th>
+                <th>CLIENTE</th>
+                <th>PRODUCTO</th>
+                <th>FECHA</th>
+                <th>MÉTODO DE PAGO</th>
+                <th class="text-end">TOTAL VENTA</th>
+
+                <th class="text-center pe-3">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <!-- Fila vacía -->
+              <tr th:if="${#lists.isEmpty(ventas)}">
+                <td colspan="7" class="text-center py-5 text-muted">
+                  <i class="bi bi-cart-x display-4 text-black-50"></i>
+                  <p class="mt-2 oswald mb-1" style="font-size:1.1rem">No hay transacciones registradas todavía.</p>
+                  <a th:href="@{/ventas/nuevo}" class="btn btn-rojo oswald btn-sm mt-2">
+                    <i class="bi bi-cart-plus me-1"></i>REGISTRAR NUEVA VENTA
+                  </a>
+                </td>
+              </tr>
+
+              <!-- Filas de datos -->
+              <tr th:each="v : ${ventas}">
+                <td class="ps-3 text-muted small fw-semibold" th:text="'#' + ${v.id}">1</td>
+
+                <!-- Cliente -->
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+                         style="width:34px;height:34px;background:#C0392B;font-size:.8rem;flex-shrink:0"
+                         th:text="${v.cliente != null} ? ${v.cliente.getIniciales()} : '?'">JQ</div>
+                    <span class="fw-semibold small" th:text="${v.cliente != null} ? ${v.cliente.nombre} : 'Sin cliente'">Juan</span>
+                  </div>
+                </td>
+
+                <td class="small text-muted">
+                  <span th:if="${#lists.isEmpty(v.detalles)}">-</span>
+                  <span th:each="dv,iterStat : ${v.detalles}">
+                    <span th:text="${dv.producto.nombre}">Producto</span><span th:if="${!iterStat.last}">, </span>
+                  </span>
+                </td>
+
+                <td class="small" th:text="${v.fecha != null} ? ${#temporals.format(v.fecha,'dd/MM/yyyy HH:mm')} : '-'">01/06/2026</td>
+
+                <td>
+                  <span class="badge bg-secondary text-uppercase small"
+                        th:text="${v.metodoPago != null} ? ${v.metodoPago} : '-'">Efectivo</span>
+                </td>
+
+                <td class="text-end fw-bold" style="color:#C0392B"
+                    th:text="${v.total != null ? 'S/ ' + #numbers.formatDecimal(v.total,1,2) : 'S/ 0.00'}">S/ 0.00</td>
+
+
+
+                <!-- Acciones -->
+                <td class="text-center pe-3">
+                  <div class="d-flex justify-content-center gap-1 flex-wrap">
+
+                    <!-- Confirmar (solo si Pendiente) -->
+                    <form th:if="${v.estado == 'Pendiente'}"
+                          th:action="@{/ventas/{id}/confirmar(id=${v.id})}" method="post"
+                          onsubmit="return confirm('¿Confirmar esta venta?')">
+                      <button type="submit" class="btn btn-success btn-accion" title="Confirmar">
+                        <i class="bi bi-check-lg me-1"></i>Confirmar
+                      </button>
+                    </form>
+
+                    <!-- Cancelar (solo si Pendiente) -->
+                    <form th:if="${v.estado == 'Pendiente'}"
+                          th:action="@{/ventas/{id}/cancelar(id=${v.id})}" method="post"
+                          onsubmit="return confirm('¿Cancelar esta venta?')">
+                      <button type="submit" class="btn btn-warning btn-accion text-dark" title="Cancelar">
+                        <i class="bi bi-x-lg me-1"></i>Cancelar
+                      </button>
+                    </form>
+
+                    <!-- Poner Pendiente (si está Cancelado) -->
+                    <form th:if="${v.estado == 'Cancelado'}"
+                          th:action="@{/ventas/{id}/estado(id=${v.id})}" method="post"
+                          onsubmit="return confirm('¿Reactivar esta venta como Pendiente?')">
+                      <input type="hidden" name="estado" value="Pendiente"/>
+                      <button type="submit" class="btn btn-outline-warning btn-accion" title="Reactivar">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reactivar
+                      </button>
+                    </form>
+
+                    <!-- Eliminar (siempre disponible) -->
+                    <form th:action="@{/ventas/{id}/eliminar(id=${v.id})}" method="post"
+                          onsubmit="return confirm('¿Eliminar esta venta definitivamente? Esta acción no se puede deshacer.')">
+                      <button type="submit" class="btn btn-outline-danger btn-accion" title="Eliminar">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </form>
+
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Total registros ── -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <small class="text-muted oswald">
+        <i class="bi bi-list-check me-1"></i>
+        <span th:text="${#lists.size(ventas)}">0</span> registro(s) encontrado(s)
+        <span th:if="${!q.isEmpty()}"> para "<strong th:text="${q}"></strong>"</span>
+      </small>
+      <a th:href="@{/productos}" class="btn btn-outline-secondary oswald btn-sm px-3">
+        <i class="bi bi-box-seam me-1"></i>VER INVENTARIO
+      </a>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: ferrovoz
+  datasource:
+    url: jdbc:mysql://localhost:3306/ferrovoz_db
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8081
+
+# Datos de la tienda (compatibilidad con controladores existentes)
+metalmax:
+  nombre: FerroVoz Ferretería
+  anio: 2026
+  contacto: ventas@ferrovoz.pe
+  telefono: "(01) 456-7890"
+  direccion: "Av. Industrial 342, Lima, Perú"
+
+ferrovoz:
+  nombre: FerroVoz Ferretería
+  anio: 2026
+  contacto: ventas@ferrovoz.pe
+  telefono: "(01) 456-7890"
+  direccion: "Av. Industrial 342, Lima, Perú"

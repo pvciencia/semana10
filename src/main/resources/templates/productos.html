@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+  <title th:text="${nombreTienda} + ' — Inventario'">FerroVoz — Inventario</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+  <!-- ── CABECERA ── -->
+  <div class="mm-page-header">
+    <div class="container py-4">
+      <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
+        <div>
+          <p class="text-white-50 mb-1" style="font-size:.78rem;letter-spacing:3px;text-transform:uppercase">Gestión</p>
+          <h2 class="oswald text-white mb-0" style="font-size:2rem;text-transform:uppercase">
+            <i class="bi bi-box-seam me-2"></i>Inventario de Productos
+          </h2>
+        </div>
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+          <!-- Búsqueda rápida -->
+          <form th:action="@{/productos}" method="get" class="d-flex gap-2">
+            <input type="search" name="q" class="form-control form-control-sm"
+                   placeholder="Buscar producto..." style="min-width:200px"
+                   th:value="${param.q}">
+            <button type="submit" class="btn btn-sm btn-outline-light">
+              <i class="bi bi-search"></i>
+            </button>
+          </form>
+          <span class="badge mm-badge-stat p-2">
+            <i class="bi bi-grid me-1"></i>
+            <span th:text="${totalProductos} + ' productos'">12 productos</span>
+          </span>
+          <button class="btn btn-rojo oswald fw-bold"
+                  data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
+            <i class="bi bi-plus-circle me-2"></i>NUEVO PRODUCTO
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container my-4">
+
+    <!-- ── FILTROS POR CATEGORÍA (dinámico) ── -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <a th:href="@{/productos}"
+         class="btn btn-sm oswald"
+         th:classappend="${categoriaActiva == 'Todos'} ? 'btn-rojo' : 'btn-outline-secondary'">
+        TODOS
+      </a>
+      <a th:each="cat : ${categorias}"
+         th:href="@{/productos(categoria=${cat})}"
+         class="btn btn-sm oswald"
+         th:classappend="${categoriaActiva == cat} ? 'btn-rojo' : 'btn-outline-secondary'"
+         th:text="${cat}">
+        Categoría
+      </a>
+    </div>
+
+    <!-- ── ALERTAS DE STOCK ── -->
+    <div th:if="${stockBajo > 0}" class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>
+        Hay <strong th:text="${stockBajo}">0</strong> producto(s) con stock bajo
+        y <strong th:text="${@productoService.contarSinStock()}">0</strong> sin stock.
+        Revisa tu inventario.
+      </span>
+    </div>
+
+    <!-- ── GRID PRODUCTOS ── -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+      <div class="col" th:each="p : ${productos}">
+        <div class="prod-card h-100"
+             th:classappend="${p.estadoStock == 'stock-low'} ? 'border-warning-card' : ''">
+
+          <!-- Imagen -->
+          <div class="prod-img-wrap">
+            <img th:src="@{${p.imagen}}" th:alt="${p.nombre}" class="prod-imagen"
+                 onerror="this.onerror=null; this.src='/img/productos/sin-imagen.jpg'">
+            <span class="prod-cat-overlay oswald" th:text="${p.categoria}">Herramientas</span>
+          </div>
+
+          <!-- Contenido -->
+          <div class="p-3 flex-grow-1">
+            <div class="d-flex justify-content-end mb-2">
+              <span class="prod-cat-badge oswald"
+                    th:classappend="${p.estadoStock}"
+                    th:text="${p.etiquetaStock}">Stock: 24</span>
+            </div>
+            <p class="prod-nombre mb-1" th:text="${p.nombre}">Nombre</p>
+            <p class="text-muted small mb-2" th:text="${p.descripcion}">Descripción</p>
+            <p class="prod-precio mb-0">
+              S/ <span th:text="${#numbers.formatDecimal(p.precio,1,2)}">0.00</span>
+              <small class="text-muted fw-normal" style="font-size:.8rem">
+                / <span th:text="${p.unidad}">unidad</span>
+              </small>
+            </p>
+          </div>
+
+          <!-- Botones -->
+          <div class="d-flex gap-2 p-3 pt-0">
+            <button type="button"
+                    class="btn btn-warning btn-sm w-100 oswald fw-bold text-white"
+                    data-bs-toggle="modal" data-bs-target="#modalEditarProducto"
+                    th:attr="data-id=${p.id}">
+              <i class="bi bi-pencil-square me-1"></i>EDITAR
+            </button>
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm w-100 oswald fw-bold"
+                    data-bs-toggle="modal" data-bs-target="#modalEliminarProducto"
+                    th:attr="data-id=${p.id}">
+              <i class="bi bi-trash me-1"></i>ELIMINAR
+            </button>
+            <a th:href="@{/productos/{id}(id=${p.id})}"
+               class="btn btn-outline-secondary btn-sm" title="Ver detalle">
+              <i class="bi bi-eye"></i>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SIN RESULTADOS ── -->
+    <div th:if="${#lists.isEmpty(productos)}" class="text-center py-5">
+      <i class="bi bi-box-seam display-1 text-muted"></i>
+      <p class="text-muted mt-3 oswald" style="font-size:1.2rem">
+        No hay productos en esta categoría.
+      </p>
+      <a th:href="@{/productos}" class="btn btn-rojo oswald mt-2">VER TODOS</a>
+    </div>
+
+  </div>
+
+  <!-- ═══ MODAL NUEVO PRODUCTO ═══ -->
+  <div class="modal fade" id="modalNuevoProducto" tabindex="-1"
+       aria-labelledby="modalNuevoProductoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header" style="background:#2C3E50;border-bottom:3px solid #C0392B;">
+          <h5 class="modal-title oswald text-white" id="modalNuevoProductoLabel">
+            <i class="bi bi-plus-circle me-2"></i>NUEVO PRODUCTO
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form th:action="@{/productos/registrar}" method="post" enctype="multipart/form-data"
+              class="needs-validation" novalidate>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="nombre"
+                       placeholder="Ej: Taladro Percutor 750W"
+                       required minlength="3" maxlength="120">
+                <div class="invalid-feedback">El nombre es obligatorio (mínimo 3 caracteres).</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Descripción <span class="text-danger">*</span></label>
+                <textarea class="form-control" name="descripcion" rows="2"
+                          placeholder="Detalles, materiales, dimensiones..."
+                          required maxlength="300"></textarea>
+                <div class="invalid-feedback">La descripción es obligatoria.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Categoría <span class="text-danger">*</span></label>
+                <select class="form-select" name="categoria" required>
+                  <option value="">Seleccionar categoría...</option>
+                  <option th:each="cat : ${categorias}" th:value="${cat}" th:text="${cat}">Cat</option>
+                </select>
+                <div class="invalid-feedback">Selecciona una categoría.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Unidad de venta</label>
+                <select class="form-select" name="unidad">
+                  <option value="unidad">Unidad</option>
+                  <option value="kg">Kilogramo</option>
+                  <option value="metro">Metro</option>
+                  <option value="balde">Balde</option>
+                  <option value="caja">Caja</option>
+                  <option value="bolsa">Bolsa</option>
+                  <option value="pack">Pack</option>
+                  <option value="tubo">Tubo</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Precio (S/) <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="precio"
+                       step="0.01" min="0.01" placeholder="0.00" required>
+                <div class="invalid-feedback">Ingresa un precio mayor a 0.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Stock inicial <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="stock"
+                       min="0" value="0" required>
+                <div class="invalid-feedback">El stock no puede ser negativo.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Imagen</label>
+                <input type="file" class="form-control" name="imagenFile" accept="image/*">
+                <div class="form-text">Se guardará en el servidor y se mostrará en el inventario.</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-rojo oswald fw-bold">GUARDAR PRODUCTO</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODAL EDITAR PRODUCTO ═══ -->
+  <div class="modal fade" id="modalEditarProducto" tabindex="-1"
+       aria-labelledby="modalEditarProductoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header" style="background:#2C3E50;border-bottom:3px solid #F39C12;">
+          <h5 class="modal-title oswald text-white" id="modalEditarProductoLabel">
+            <i class="bi bi-pencil-square me-2"></i>EDITAR PRODUCTO
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="formEditarProducto" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="nombre"
+                       required minlength="3" maxlength="120">
+                <div class="invalid-feedback">El nombre es obligatorio (mínimo 3 caracteres).</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Descripción <span class="text-danger">*</span></label>
+                <textarea class="form-control" name="descripcion" rows="2"
+                          required maxlength="300"></textarea>
+                <div class="invalid-feedback">La descripción es obligatoria.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Categoría <span class="text-danger">*</span></label>
+                <select class="form-select" name="categoria" required>
+                  <option value="">Seleccionar categoría...</option>
+                  <option th:each="cat : ${categorias}" th:value="${cat}" th:text="${cat}">Cat</option>
+                </select>
+                <div class="invalid-feedback">Selecciona una categoría.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Unidad de venta</label>
+                <select class="form-select" name="unidad">
+                  <option value="unidad">Unidad</option>
+                  <option value="kg">Kilogramo</option>
+                  <option value="metro">Metro</option>
+                  <option value="balde">Balde</option>
+                  <option value="caja">Caja</option>
+                  <option value="bolsa">Bolsa</option>
+                  <option value="pack">Pack</option>
+                  <option value="tubo">Tubo</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Precio (S/) <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="precio"
+                       step="0.01" min="0.01" required>
+                <div class="invalid-feedback">Ingresa un precio mayor a 0.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Stock <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="stock" min="0" required>
+                <div class="invalid-feedback">El stock no puede ser negativo.</div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Imagen</label>
+                <input type="file" class="form-control" name="imagenFile" accept="image/*">
+                <div class="form-text">Sube una imagen para este producto (opcional).</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-warning oswald fw-bold text-white">
+              <i class="bi bi-check-circle me-1"></i>ACTUALIZAR PRODUCTO
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODAL ELIMINAR PRODUCTO ═══ -->
+  <div class="modal fade" id="modalEliminarProducto" tabindex="-1"
+       aria-labelledby="modalEliminarProductoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="background:#2C3E50;border-bottom:3px solid #C0392B;">
+          <h5 class="modal-title oswald text-white" id="modalEliminarProductoLabel">
+            <i class="bi bi-exclamation-triangle me-2"></i>ELIMINAR PRODUCTO
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="formEliminarProducto" method="post">
+          <div class="modal-body">
+            <p class="mb-2">¿Estás seguro de que deseas eliminar este producto?</p>
+            <p class="fw-bold oswald mb-0" id="eliminarProductoNombre" style="color:#C0392B">—</p>
+            <p class="text-muted small mt-3 mb-0">
+              <i class="bi bi-info-circle me-1"></i>Esta acción no se puede deshacer.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger oswald fw-bold">
+              <i class="bi bi-trash me-1"></i>ELIMINAR
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<th:block layout:fragment="scripts">
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    const productosData  = /*[[${productos}]]*/ [];
+    const productosBaseUrl = /*[[@{/productos}]]*/ '/productos';
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // ── Modal Editar ──
+      const modalEditar = document.getElementById('modalEditarProducto');
+      if (modalEditar) {
+        modalEditar.addEventListener('show.bs.modal', e => {
+          const id = e.relatedTarget.getAttribute('data-id');
+          const p  = productosData.find(x => String(x.id) === String(id));
+          if (!p) return;
+
+          const form = document.getElementById('formEditarProducto');
+          form.action = productosBaseUrl + '/' + id + '/actualizar';
+
+          form.querySelector('[name=nombre]').value      = p.nombre;
+          form.querySelector('[name=descripcion]').value = p.descripcion;
+          form.querySelector('[name=categoria]').value   = p.categoria;
+          form.querySelector('[name=precio]').value      = p.precio;
+          form.querySelector('[name=stock]').value       = p.stock;
+          form.querySelector('[name=unidad]').value      = p.unidad;
+
+          form.classList.remove('was-validated');
+        });
+      }
+
+      // ── Modal Eliminar ──
+      const modalEliminar = document.getElementById('modalEliminarProducto');
+      if (modalEliminar) {
+        modalEliminar.addEventListener('show.bs.modal', e => {
+          const id = e.relatedTarget.getAttribute('data-id');
+          const p  = productosData.find(x => String(x.id) === String(id));
+          if (!p) return;
+
+          const form = document.getElementById('formEliminarProducto');
+          form.action = productosBaseUrl + '/' + id + '/eliminar';
+          document.getElementById('eliminarProductoNombre').textContent = p.nombre;
+        });
+      }
+
+      // ── Limpiar validación al cerrar cualquier modal (Nuevo, Editar, Eliminar) ──
+      document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('hidden.bs.modal', () => {
+          const form = modal.querySelector('.needs-validation');
+          if (form) {
+            form.classList.remove('was-validated');
+            if (modal.id === 'modalNuevoProducto') {
+              form.reset();
+            }
+          }
+        });
+      });
+    });
+    /*]]>*/
+  </script>
+</th:block>
+
+</body>
+</html>

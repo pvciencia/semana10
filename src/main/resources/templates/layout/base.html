@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title layout:title-pattern="$CONTENT_TITLE">FerroVoz</title>
+
+  <!-- CSS propio -->
+  <link rel="stylesheet" th:href="@{/css/estilos.css}">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar navbar-expand-lg navbar-dark mm-navbar sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <rect width="26" height="26" rx="5" fill="#C0392B"/>
+        <path d="M6 13L11 8L15 12L20 7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6 19L9 16L13 18.5L20 13" stroke="#F39C12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      FERRO<span class="text-danger">VOZ</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto gap-2">
+        <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house me-1"></i>INICIO</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/productos}"><i class="bi bi-box-seam me-1"></i>INVENTARIO</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/ventas/nuevo}"><i class="bi bi-receipt me-1"></i>NUEVA VENTA</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/ventas/historial}"><i class="bi bi-journal-text me-1"></i> HISTORIAL</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/mantenimiento}"><i class="bi bi-sliders me-1"></i>MANTENIMIENTO</a></li>
+
+        <li class="nav-item"><a class="nav-link" th:href="@{/nosotros}"><i class="bi bi-info-circle me-1"></i>NOSOTROS</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/login}"><i class="bi bi-box-arrow-in-right me-1"></i>LOGIN</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/contacto}"><i class="bi bi-envelope me-1"></i>CONTACTO</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ── ALERTAS FLASH (éxito / error desde redirect) ── -->
+<div class="container mt-3" th:if="${successMsg != null or errorMsg != null}">
+  <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+    <i class="bi bi-check-circle-fill"></i>
+    <span th:text="${successMsg}">Operación exitosa.</span>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+  </div>
+  <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span th:text="${errorMsg}">Ha ocurrido un error.</span>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+  </div>
+</div>
+
+<!-- ── CONTENIDO DINÁMICO ── -->
+<main layout:fragment="content"></main>
+
+<!-- ── FOOTER ── -->
+<footer class="mm-footer py-4">
+  <div class="container">
+    <div class="row g-3 align-items-center">
+      <div class="col-md-4">
+        <p class="oswald mb-1" style="font-size:1.3rem;color:#fff">
+          FERRO<span style="color:#C0392B">VOZ</span>
+          <span style="font-size:.7rem;letter-spacing:3px;color:#BDC3C7"> FERRETERÍA</span>
+        </p>
+        <p class="mb-0 small" style="color:#BDC3C7" th:text="${direccion}">Lima, Perú</p>
+      </div>
+      <div class="col-md-4 text-md-center">
+        <p class="mb-1 small" style="color:#BDC3C7"><i class="bi bi-telephone me-1"></i><span th:text="${telefono}">(01) 456-7890</span></p>
+        <p class="mb-0 small" style="color:#BDC3C7"><i class="bi bi-envelope me-1"></i><span th:text="${contacto}">ventas@ferrovoz.pe</span></p>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <p class="mb-0 small" style="color:#BDC3C7">
+          Marcos de Desarrollo Web — UTP<br>
+          <span style="color:#F39C12">GRUPO 04</span><br>
+          <span th:text="'© ' + ${anio}">© 2026</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Bootstrap JS ── -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ── Validaciones globales Bootstrap ── -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.needs-validation').forEach(form => {
+      form.addEventListener('submit', e => {
+        if (!form.checkValidity()) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      });
+    });
+  });
+</script>
+
+<!-- ── Scripts por página ── -->
+<th:block layout:fragment="scripts"></th:block>
+
+</body>
+</html>

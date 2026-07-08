@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+  <title th:text="${nombreTienda} + ' — Venta Confirmada'">MetalMax — Confirmación</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+  <div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 text-center">
+        <div class="mb-4">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+               style="width:80px;height:80px;background:#d4edda">
+            <i class="bi bi-check-circle-fill text-success" style="font-size:2.5rem"></i>
+          </div>
+          <h2 class="oswald" style="font-size:2rem;color:#2C3E50">VENTA REGISTRADA</h2>
+          <p class="text-muted">La venta se ha registrado correctamente en el sistema.</p>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 text-start mb-4">
+          <div class="card-header py-3" style="background:#2C3E50;border-bottom:3px solid #27ae60">
+            <h5 class="oswald text-white mb-0"><i class="bi bi-receipt me-2"></i>DETALLE DE LA VENTA</h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-6">
+                <p class="text-muted small mb-1">CLIENTE</p>
+                <p class="fw-bold oswald mb-0" th:text="${venta.cliente}">—</p>
+              </div>
+              <div class="col-6">
+                <p class="text-muted small mb-1">PRODUCTO</p>
+                <p class="fw-bold oswald mb-0" th:text="${venta.producto}">—</p>
+              </div>
+              <div class="col-6">
+                <p class="text-muted small mb-1">CANTIDAD</p>
+                <p class="fw-bold oswald mb-0" th:text="${venta.cantidad}">1</p>
+              </div>
+              <div class="col-6">
+                <p class="text-muted small mb-1">MÉTODO DE PAGO</p>
+                <p class="fw-bold oswald mb-0" th:text="${venta.metodo}">Efectivo</p>
+              </div>
+              <div class="col-12" th:if="${venta.observaciones != null and !venta.observaciones.isEmpty()}">
+                <p class="text-muted small mb-1">OBSERVACIONES</p>
+                <p class="mb-0" th:text="${venta.observaciones}">—</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+  <a th:href="@{/ventas/nuevo}" class="btn btn-rojo oswald fw-bold px-4">
+    <i class="bi bi-plus-circle me-2"></i>NUEVA VENTA
+  </a>
+  
+  <a th:href="@{/ventas/historial}" class="btn btn-primary oswald px-4" style="background:#2C3E50; border-color:#2C3E50;">
+    <i class="bi bi-journal-text me-2"></i>VER HISTORIAL GENERAL
+  </a>
+  
+  <a th:href="@{/productos}" class="btn btn-outline-secondary oswald px-4">
+    <i class="bi bi-box-seam me-2"></i>INVENTARIO
+  </a>
+  <a th:href="@{/}" class="btn btn-outline-secondary oswald px-4">
+    <i class="bi bi-house me-2"></i>INICIO
+  </a>
+</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

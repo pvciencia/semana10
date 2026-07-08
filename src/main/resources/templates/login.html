@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+  <title>FERREVOZ — Acceso al Sistema</title>
+
+  <style>
+
+    /* Fondo login */
+    .login-wrap{
+      min-height: calc(100vh - 160px);
+      background: linear-gradient(135deg, #1a252f 0%, #2c3e50 60%, #922b21 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 16px;
+    }
+
+    .login-wrap::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='transparent'/%3E%3Cline x1='0' y1='60' x2='60' y2='0' stroke='%23ffffff06' stroke-width='1'/%3E%3C/svg%3E");
+      background-size:60px 60px;
+    }
+
+    /* Card */
+    .login-card{
+      background:#fff;
+      border-radius:14px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.3);
+      overflow:hidden;
+      width:100%;
+      max-width:420px;
+      position:relative;
+      z-index:1;
+    }
+
+    .login-header{
+      background:var(--acero);
+      border-bottom:4px solid var(--rojo);
+      padding:32px 32px 24px;
+      text-align:center;
+    }
+
+    .login-logo{
+      font-family:'Oswald',sans-serif;
+      font-size:2.4rem;
+      color:#fff;
+      letter-spacing:3px;
+    }
+
+    .login-logo span{
+      color:var(--rojo);
+    }
+
+    .login-sub{
+      color:var(--plata);
+      font-size:.78rem;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      margin-top:4px;
+    }
+
+    .login-body{
+      padding:32px;
+    }
+
+    .btn-rojo{
+      background:var(--rojo);
+      border:none;
+      color:#fff;
+      font-family:'Oswald',sans-serif;
+      letter-spacing:1px;
+      font-size:1rem;
+    }
+
+    .btn-rojo:hover{
+      background:var(--rojo-osc);
+      color:#fff;
+    }
+
+    .form-control:focus{
+      border-color:var(--rojo);
+      box-shadow:0 0 0 0.2rem rgba(192,57,43,0.18);
+    }
+
+    .login-divider{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin:20px 0;
+    }
+
+    .login-divider::before,
+    .login-divider::after{
+      content:"";
+      flex:1;
+      height:1px;
+      background:#e0e0e0;
+    }
+
+    .login-divider span{
+      font-size:.8rem;
+      color:#aaa;
+      white-space:nowrap;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+  <div class="login-wrap">
+
+    <div class="login-card">
+
+      <div class="login-header">
+
+        <div class="login-logo">
+          FERRO<span>VOZ</span>
+        </div>
+
+        <div class="login-sub">
+          Sistema de Gestión
+        </div>
+
+        <div class="mt-3">
+          <span class="badge rounded-pill px-3 py-2"
+                style="background:rgba(255,255,255,0.1);color:var(--plata);font-size:.75rem">
+
+            <i class="bi bi-shield-check me-1 text-success"></i>
+            Conexión segura
+
+          </span>
+        </div>
+
+      </div>
+
+      <div class="login-body">
+
+        <h5 class="oswald mb-4"
+            style="color:var(--acero);font-size:1.2rem;letter-spacing:1px">
+
+          <i class="bi bi-box-arrow-in-right me-2"
+             style="color:var(--rojo)"></i>
+
+          ACCESO AL SISTEMA
+
+        </h5>
+
+        <form id="loginForm" class="needs-validation" novalidate>
+
+          <!-- Usuario -->
+          <div class="mb-3">
+
+            <label class="form-label fw-semibold" for="usuario">
+              Usuario <span class="text-danger">*</span>
+            </label>
+
+            <div class="input-group has-validation">
+
+              <span class="input-group-text">
+                <i class="bi bi-person text-muted"></i>
+              </span>
+
+              <input type="text"
+                     class="form-control"
+                     placeholder="Ingresa tu usuario"
+                     id="usuario"
+                     name="usuario"
+                     minlength="3"
+                     required>
+
+              <div class="invalid-feedback">Ingresa tu usuario (mínimo 3 caracteres).</div>
+
+            </div>
+
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+
+            <label class="form-label fw-semibold" for="password">
+              Contraseña <span class="text-danger">*</span>
+            </label>
+
+            <div class="input-group has-validation">
+
+              <span class="input-group-text">
+                <i class="bi bi-lock text-muted"></i>
+              </span>
+
+              <input type="password"
+                     class="form-control"
+                     placeholder="••••••••"
+                     id="password"
+                     name="password"
+                     minlength="4"
+                     required>
+
+              <button class="btn btn-outline-secondary"
+                      type="button"
+                      onclick="togglePass()">
+
+                <i class="bi bi-eye" id="eyeIcon"></i>
+
+              </button>
+
+              <div class="invalid-feedback">Ingresa tu contraseña (mínimo 4 caracteres).</div>
+
+            </div>
+
+          </div>
+
+          <!-- Opciones -->
+          <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div class="form-check">
+
+              <input type="checkbox"
+                     class="form-check-input"
+                     id="recuerdame"
+                     name="recuerdame">
+
+              <label class="form-check-label" for="recuerdame">
+                Recordarme
+              </label>
+
+            </div>
+
+            <a href="#"
+               class="text-decoration-none small"
+               style="color:var(--rojo)">
+
+              ¿Olvidaste tu contraseña?
+
+            </a>
+
+          </div>
+
+          <!-- Botón login -->
+          <button type="submit" class="btn btn-rojo w-100 py-2 fw-bold oswald fs-5">
+
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+            INGRESAR
+
+          </button>
+
+          <!-- Alert -->
+          <div id="loginAlert"
+               class="alert alert-danger mt-3 d-none"
+               role="alert">
+
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Usuario o contraseña incorrectos.
+
+          </div>
+
+        </form>
+
+        <!-- Divider -->
+        <div class="login-divider">
+          <span>o accede como visitante</span>
+        </div>
+
+        <!-- Demo -->
+        <a th:href="@{/}"
+           class="btn btn-outline-secondary w-100">
+
+          <i class="bi bi-eye me-2"></i>
+          Ver demo sin iniciar sesión
+
+        </a>
+
+        <p class="text-center text-muted small mt-4 mb-0">
+
+          <i class="bi bi-info-circle me-1"></i>
+          Solo personal autorizado de FERREVOZ
+
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+  function togglePass(){
+
+    const inp = document.getElementById('password');
+    const ico = document.getElementById('eyeIcon');
+
+    if(inp.type === 'password'){
+      inp.type = 'text';
+      ico.className = 'bi bi-eye-slash';
+    }else{
+      inp.type = 'password';
+      ico.className = 'bi bi-eye';
+    }
+
+  }
+
+  const loginForm = document.getElementById('loginForm');
+
+  loginForm.addEventListener('submit', function (e) {
+
+    // Siempre evitamos el envío real: esta pantalla es una demo sin backend.
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 1) Validación Bootstrap: si falta usuario/contraseña, se muestran
+    //    los mensajes invalid-feedback y no se continúa con el login.
+    if (!loginForm.checkValidity()) {
+      loginForm.classList.add('was-validated');
+      return;
+    }
+
+    loginForm.classList.add('was-validated');
+
+    // 2) Validación de negocio (credenciales) una vez que el formulario
+    //    ya es válido a nivel de Bootstrap.
+    const u = document.getElementById('usuario').value.trim();
+    const p = document.getElementById('password').value.trim();
+    const alerta = document.getElementById('loginAlert');
+
+    if (u === 'admin' && p === '1234') {
+      window.location.href = '/';
+    } else {
+      alerta.classList.remove('d-none');
+      setTimeout(() => {
+        alerta.classList.add('d-none');
+      }, 3000);
+    }
+
+  });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<head>
+  <title th:text="${nombreTienda} + ' — Nueva Venta'">FerroVoz — Nueva Venta</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+  <div class="mm-page-header">
+    <div class="container py-4">
+      <p class="text-white-50 mb-1" style="font-size:.78rem;letter-spacing:3px;text-transform:uppercase">Ventas</p>
+      <h2 class="oswald text-white mb-0" style="font-size:2rem;text-transform:uppercase">
+        <i class="bi bi-cart-plus me-2"></i>Registrar Venta
+      </h2>
+    </div>
+  </div>
+
+  <div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+
+        <!-- Error de validación server-side -->
+        <div th:if="${errorMsg}" class="alert alert-danger d-flex align-items-center gap-2 mb-4">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span th:text="${errorMsg}">Error.</span>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+          <div class="card-header py-3" style="background:#2C3E50;border-bottom:3px solid #C0392B">
+            <h5 class="oswald text-white mb-0"><i class="bi bi-cart-plus me-2"></i>DATOS DE LA VENTA</h5>
+          </div>
+          <div class="card-body p-4">
+
+            <form th:action="@{/ventas/registrar}" method="post" class="needs-validation" novalidate>
+
+              <!-- Cliente (ingresar nombre manualmente) -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">
+                  Cliente <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" name="clienteNombre" required placeholder="Nombre del cliente">
+                <div class="invalid-feedback">Debes ingresar el nombre del cliente.</div>
+              </div>
+
+              <!-- Productos (múltiples) -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Productos <span class="text-danger">*</span></label>
+                <div id="productos-container">
+                  <div class="row g-3 mb-2 producto-line">
+                    <div class="col-8">
+                      <select class="form-select" name="productoId" required>
+                        <option value="">Seleccionar producto...</option>
+                        <option th:each="p : ${productos}" th:value="${p.id}" th:text="|${p.nombre} — S/ ${#numbers.formatDecimal(p.precio,1,2)} (Stock: ${p.stock})|"></option>
+                      </select>
+                      <div class="invalid-feedback">Selecciona un producto.</div>
+                    </div>
+                    <div class="col-3">
+                      <input type="number" class="form-control" name="cantidad" min="1" value="1" required>
+                      <div class="invalid-feedback">Cantidad inválida (mínimo 1).</div>
+                    </div>
+                    <div class="col-1 d-flex align-items-center">
+                      <button type="button" class="btn btn-outline-danger btn-sm btn-remove-producto" title="Eliminar">−</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-2">
+                  <button type="button" id="add-producto" class="btn btn-outline-secondary btn-sm">Agregar producto</button>
+                </div>
+                <div class="form-text">Puedes agregar varios productos por venta.</div>
+              </div>
+
+              <th:block layout:fragment="scripts">
+                <script>
+                  document.addEventListener('DOMContentLoaded', function(){
+                    const container = document.getElementById('productos-container');
+                    const addBtn = document.getElementById('add-producto');
+
+                    function bindRemove(btn){
+                      btn.addEventListener('click', function(){
+                        const line = btn.closest('.producto-line');
+                        if (container.querySelectorAll('.producto-line').length > 1){
+                          line.remove();
+                        } else {
+                          line.querySelector('select[name="productoId"]').value = '';
+                          line.querySelector('input[name="cantidad"]').value = 1;
+                        }
+                      });
+                    }
+
+                    container.querySelectorAll('.btn-remove-producto').forEach(bindRemove);
+
+                    addBtn.addEventListener('click', function(){
+                      const first = container.querySelector('.producto-line');
+                      const clone = first.cloneNode(true);
+                      clone.querySelector('select[name="productoId"]').value = '';
+                      clone.querySelector('input[name="cantidad"]').value = 1;
+                      container.appendChild(clone);
+                      bindRemove(clone.querySelector('.btn-remove-producto'));
+                    });
+                  });
+                </script>
+              </th:block>
+
+              <!-- Método de pago -->
+              <div class="row g-3 mb-3">
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Método de pago</label>
+                  <select class="form-select" name="metodo">
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Yape / Plin">Yape / Plin</option>
+                    <option value="Transferencia">Transferencia bancaria</option>
+                    <option value="Crédito">Crédito (cuenta)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Observaciones -->
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Observaciones</label>
+                <textarea class="form-control" name="observaciones" rows="2"
+                          placeholder="Ej: entrega a domicilio, descuento especial..."
+                          maxlength="300"></textarea>
+              </div>
+
+              <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-rojo oswald fw-bold px-4">
+                  <i class="bi bi-check-circle me-2"></i>REGISTRAR VENTA
+                </button>
+                <a th:href="@{/productos}" class="btn btn-outline-secondary oswald px-4">
+                  <i class="bi bi-x me-1"></i>CANCELAR
+                </a>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
