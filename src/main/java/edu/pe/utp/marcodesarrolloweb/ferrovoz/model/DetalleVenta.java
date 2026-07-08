@@ -37,4 +37,9 @@ public class DetalleVenta {
     public void       setCantidad(Integer c)     { this.cantidad = c; }
     public BigDecimal getPrecio()                { return precio; }
     public void       setPrecio(BigDecimal p)    { this.precio = p; }
+
+    public BigDecimal getSubtotal() {
+        if (precio == null || cantidad == null) return BigDecimal.ZERO;
+        return precio.multiply(BigDecimal.valueOf(cantidad));
+    }
 }

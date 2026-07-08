@@ -91,19 +91,11 @@ public class ProductoController {
         // Procesar imagen si se subió
         if (imagenFile != null && !imagenFile.isEmpty()) {
             try {
-                Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads", "img", "productos");
-                Files.createDirectories(uploadDir);
-                String original = imagenFile.getOriginalFilename();
-                String ext = "";
-                if (original != null && original.contains(".")) {
-                    ext = original.substring(original.lastIndexOf('.'));
-                }
-                String filename = UUID.randomUUID().toString() + ext;
-                Path target = uploadDir.resolve(filename);
-                Files.copy(imagenFile.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-                producto.setImagen("/img/productos/" + filename);
+                String base64 = java.util.Base64.getEncoder().encodeToString(imagenFile.getBytes());
+                String dataUrl = "data:" + imagenFile.getContentType() + ";base64," + base64;
+                producto.setImagen(dataUrl);
             } catch (IOException e) {
-                ra.addFlashAttribute("errorMsg", "Error al guardar la imagen: " + e.getMessage());
+                ra.addFlashAttribute("errorMsg", "Error al procesar la imagen: " + e.getMessage());
                 return "redirect:/productos";
             }
         }
@@ -130,19 +122,11 @@ public class ProductoController {
         // Procesar imagen si se subió
         if (imagenFile != null && !imagenFile.isEmpty()) {
             try {
-                Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads", "img", "productos");
-                Files.createDirectories(uploadDir);
-                String original = imagenFile.getOriginalFilename();
-                String ext = "";
-                if (original != null && original.contains(".")) {
-                    ext = original.substring(original.lastIndexOf('.'));
-                }
-                String filename = UUID.randomUUID().toString() + ext;
-                Path target = uploadDir.resolve(filename);
-                Files.copy(imagenFile.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-                producto.setImagen("/img/productos/" + filename);
+                String base64 = java.util.Base64.getEncoder().encodeToString(imagenFile.getBytes());
+                String dataUrl = "data:" + imagenFile.getContentType() + ";base64," + base64;
+                producto.setImagen(dataUrl);
             } catch (IOException e) {
-                ra.addFlashAttribute("errorMsg", "Error al guardar la imagen: " + e.getMessage());
+                ra.addFlashAttribute("errorMsg", "Error al procesar la imagen: " + e.getMessage());
                 return "redirect:/productos";
             }
         }
@@ -163,6 +147,28 @@ public class ProductoController {
         boolean eliminado = productoService.eliminar(id);
         if (eliminado) {
             ra.addFlashAttribute("successMsg", "Producto eliminado correctamente.");
+        } else {
+            ra.addFlashAttribute("errorMsg", "No se encontró el producto con ID " + id + ".");
+        }
+        return "redirect:/productos";
+    }
+
+    // ── POST /productos/{id}/agregar-stock  ─────────────────────────────────
+    @PostMapping("/{id}/agregar-stock")
+    public String agregarStock(@PathVariable("id") int id,
+                               @RequestParam("cantidadStock") int cantidadStock,
+                               RedirectAttributes ra) {
+        if (cantidadStock <= 0) {
+            ra.addFlashAttribute("errorMsg", "La cantidad a sumar debe ser mayor que cero.");
+            return "redirect:/productos";
+        }
+        Optional<Producto> opt = productoService.buscarPorId(id);
+        if (opt.isPresent()) {
+            Producto p = opt.get();
+            int nuevoStock = (p.getStock() != null ? p.getStock() : 0) + cantidadStock;
+            p.setStock(nuevoStock);
+            productoService.actualizar(id, p);
+            ra.addFlashAttribute("successMsg", "Se agregaron " + cantidadStock + " unidades al stock de \"" + p.getNombre() + "\".");
         } else {
             ra.addFlashAttribute("errorMsg", "No se encontró el producto con ID " + id + ".");
         }

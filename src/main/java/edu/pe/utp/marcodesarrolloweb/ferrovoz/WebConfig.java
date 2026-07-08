@@ -15,7 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
         // trabajo
         Path uploadDir = Path.of(System.getProperty("user.dir"), "uploads", "img", "productos");
         String uploadPath = uploadDir.toUri().toString();
-        registry.addResourceHandler("/img/productoss/**")
+        registry.addResourceHandler("/img/productos/**")
                 .addResourceLocations(uploadPath);
     }
 }

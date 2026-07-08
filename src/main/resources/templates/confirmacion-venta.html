@@ -12,6 +12,27 @@
 
 <div layout:fragment="content">
 
+  <style>
+    @media print {
+      nav, footer, .alert, .mb-4, .d-flex.gap-3.justify-content-center {
+        display: none !important;
+      }
+      body, html {
+        background: #fff !important;
+      }
+      .printable-receipt {
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .printable-receipt .card-footer {
+        display: none !important;
+      }
+    }
+  </style>
+
   <div class="container my-5">
     <div class="row justify-content-center">
       <div class="col-lg-6 text-center">
@@ -24,33 +45,77 @@
           <p class="text-muted">La venta se ha registrado correctamente en el sistema.</p>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 text-start mb-4">
-          <div class="card-header py-3" style="background:#2C3E50;border-bottom:3px solid #27ae60">
-            <h5 class="oswald text-white mb-0"><i class="bi bi-receipt me-2"></i>DETALLE DE LA VENTA</h5>
+        <div class="card border-0 shadow-lg mb-4 printable-receipt" id="boletaImprimir" style="border-radius:12px; overflow:hidden;">
+          <div class="card-header bg-dark text-white p-3">
+            <h5 class="oswald text-uppercase m-0 text-center" style="font-size:1.05rem; letter-spacing:1px;">
+              <i class="bi bi-receipt me-2 text-danger"></i>BOLETA DE COMPRA GENERADA
+            </h5>
           </div>
-          <div class="card-body p-4">
-            <div class="row g-3">
-              <div class="col-6">
-                <p class="text-muted small mb-1">CLIENTE</p>
-                <p class="fw-bold oswald mb-0" th:text="${venta.cliente}">—</p>
+          <div class="card-body p-4 bg-white text-start">
+            <!-- Encabezado de la Boleta -->
+            <div class="text-center mb-4">
+              <h4 class="oswald fw-bold text-danger mb-0" style="font-size:1.3rem; letter-spacing:1.5px;" th:text="${nombreTienda}">FerroVoz Ferretería</h4>
+              <small class="text-muted text-uppercase font-monospace" style="font-size:0.7rem; letter-spacing:1px;">Boleta de Venta Electrónica</small>
+            </div>
+            
+            <div class="row g-2 mb-3" style="font-size:0.8rem;">
+              <div class="col-6 text-muted">
+                <strong>Cliente:</strong><br>
+                <span class="text-dark fw-semibold" th:text="${v.cliente != null ? v.cliente.nombre : 'Sin cliente'}">Juan</span><br>
+                <strong>DNI/RUC:</strong> <span class="text-dark" th:text="${v.cliente != null ? v.cliente.dni : '-'}">12345678</span>
               </div>
-              <div class="col-6">
-                <p class="text-muted small mb-1">PRODUCTO</p>
-                <p class="fw-bold oswald mb-0" th:text="${venta.producto}">—</p>
-              </div>
-              <div class="col-6">
-                <p class="text-muted small mb-1">CANTIDAD</p>
-                <p class="fw-bold oswald mb-0" th:text="${venta.cantidad}">1</p>
-              </div>
-              <div class="col-6">
-                <p class="text-muted small mb-1">MÉTODO DE PAGO</p>
-                <p class="fw-bold oswald mb-0" th:text="${venta.metodo}">Efectivo</p>
-              </div>
-              <div class="col-12" th:if="${venta.observaciones != null and !venta.observaciones.isEmpty()}">
-                <p class="text-muted small mb-1">OBSERVACIONES</p>
-                <p class="mb-0" th:text="${venta.observaciones}">—</p>
+              <div class="col-6 text-end text-muted">
+                <strong>Venta ID:</strong> #<span class="text-dark fw-bold" th:text="${v.id}">1</span><br>
+                <strong>Fecha:</strong> <span class="text-dark" th:text="${v.fecha != null ? #temporals.format(v.fecha,'dd/MM/yyyy HH:mm') : '-'}">-</span><br>
+                <strong>Vendedor:</strong> <span class="text-dark fw-semibold" th:text="${v.usuario != null ? v.usuario.username : 'admin'}">admin</span>
               </div>
             </div>
+            
+            <hr class="my-3">
+            
+            <!-- Tabla de Productos -->
+            <div class="table-responsive">
+              <table class="table table-sm table-borderless align-middle mb-0" style="font-size:0.8rem;">
+                <thead>
+                  <tr class="text-muted border-bottom" style="font-size:0.75rem; text-transform:uppercase;">
+                    <th>Producto</th>
+                    <th class="text-center" style="width:15%;">Cant.</th>
+                    <th class="text-end" style="width:25%;">P. Unit</th>
+                    <th class="text-end" style="width:25%;">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="dv : ${v.detalles}" class="border-bottom" style="border-bottom-style: dashed !important; border-bottom-color: #dee2e6 !important;">
+                    <td class="py-2 fw-semibold text-dark" th:text="${dv.producto.nombre}">Nombre Producto</td>
+                    <td class="text-center py-2 text-muted" th:text="${dv.cantidad}">1</td>
+                    <td class="text-end py-2 text-muted" th:text="${'S/ ' + #numbers.formatDecimal(dv.precio,1,2)}">S/ 0.00</td>
+                    <td class="text-end py-2 fw-bold text-dark" th:text="${'S/ ' + #numbers.formatDecimal(dv.subtotal,1,2)}">S/ 0.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <hr class="my-3">
+            
+            <!-- Totales -->
+            <div class="row align-items-center mb-2" style="font-size:0.8rem;">
+              <div class="col-6 text-muted">Método de pago:</div>
+              <div class="col-6 text-end text-dark fw-semibold text-uppercase" th:text="${v.metodoPago != null ? v.metodoPago : 'No especificado'}">Efectivo</div>
+            </div>
+            <div class="row align-items-center mb-3" style="font-size:0.8rem;">
+              <div class="col-6 text-muted">Estado de venta:</div>
+              <div class="col-6 text-end">
+                <span class="badge" th:classappend="${v.getEstadoBadgeClass()}" th:text="${v.estado}">Confirmado</span>
+              </div>
+            </div>
+            
+            <div class="p-3 bg-light rounded d-flex justify-content-between align-items-center" style="border: 1px solid #e9ecef;">
+              <span class="oswald fw-bold text-uppercase text-muted" style="font-size:0.9rem; letter-spacing:0.5px;">Total a Pagar</span>
+              <span class="oswald fw-bold text-danger" style="font-size:1.25rem; letter-spacing:0.5px;" th:text="${v.total != null ? 'S/ ' + #numbers.formatDecimal(v.total,1,2) : 'S/ 0.00'}">S/ 0.00</span>
+            </div>
+          </div>
+          <div class="card-footer bg-light border-0 p-3 text-center">
+            <button type="button" class="btn btn-danger btn-sm oswald px-4" onclick="window.print()"><i class="bi bi-printer me-2"></i>IMPRIMIR COMPROBANTE</button>
           </div>
         </div>
 

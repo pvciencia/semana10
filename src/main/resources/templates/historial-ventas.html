@@ -17,6 +17,28 @@
     .stat-lbl  { font-size: .7rem; color: #BDC3C7; letter-spacing: 1px; text-transform: uppercase; }
     .search-bar .form-control { border-right: none; }
     .search-bar .btn { border-left: none; }
+    .no-caret::after { display: none !important; }
+    @media print {
+      nav, footer, .mm-page-header, .card, .mt-3, .modal-backdrop {
+        display: none !important;
+      }
+      body, html {
+        background: #fff !important;
+      }
+      .modal.show .printable-receipt {
+        display: block !important;
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .modal.show .modal-footer, 
+      .modal.show .btn-close,
+      .modal.show .btn {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 
@@ -28,25 +50,9 @@
   <div class="mm-page-header">
     <div class="container py-4">
       <p class="text-white-50 mb-1" style="font-size:.78rem;letter-spacing:3px;text-transform:uppercase">Módulo de Ventas</p>
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
         <h2 class="oswald text-white mb-0" style="font-size:2rem;text-transform:uppercase">
           <i class="bi bi-journal-text me-2"></i>Historial de Ventas Registradas
         </h2>
-        <div class="d-flex gap-3">
-          <div class="stat-pill text-center">
-            <div class="stat-num text-warning" th:text="${totalPendientes}">0</div>
-            <div class="stat-lbl">Pendientes</div>
-          </div>
-          <div class="stat-pill text-center">
-            <div class="stat-num text-success" th:text="${totalConfirm}">0</div>
-            <div class="stat-lbl">Confirmados</div>
-          </div>
-          <div class="stat-pill text-center">
-            <div class="stat-num text-danger" th:text="${totalCancel}">0</div>
-            <div class="stat-lbl">Cancelados</div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -56,14 +62,13 @@
     <div class="card border-0 shadow-sm rounded-3 mb-4 p-3">
       <div class="row g-2 align-items-center">
         <!-- Búsqueda libre -->
-        <div class="col-md-5">
+        <div class="col-md-8">
           <form th:action="@{/ventas/historial}" method="get" class="d-flex search-bar">
             <input type="text" name="q" class="form-control"
                    th:value="${q}"
-                   th:classappend="${!q.isEmpty()} ? 'filtro-activo' : ''"
                    placeholder="Buscar cliente, método de pago...">
             <button class="btn btn-outline-secondary" type="submit">
-              <i class="bi bi-search"></i>
+               <i class="bi bi-search"></i>
             </button>
             <a th:if="${!q.isEmpty()}" th:href="@{/ventas/historial}"
                class="btn btn-outline-danger ms-1" title="Limpiar búsqueda">
@@ -71,25 +76,8 @@
             </a>
           </form>
         </div>
-        <!-- Filtro por estado -->
-        <div class="col-md-4">
-          <div class="d-flex gap-2">
-            <a th:href="@{/ventas/historial}"
-               th:classappend="${estadoFiltro.isEmpty()} ? 'btn-rojo' : 'btn-outline-secondary'"
-               class="btn btn-sm oswald px-3">TODOS</a>
-            <a th:href="@{/ventas/historial(estado='Pendiente')}"
-               th:classappend="${estadoFiltro == 'Pendiente'} ? 'btn-warning' : 'btn-outline-warning'"
-               class="btn btn-sm oswald px-3">PENDIENTE</a>
-            <a th:href="@{/ventas/historial(estado='Confirmado')}"
-               th:classappend="${estadoFiltro == 'Confirmado'} ? 'btn-success' : 'btn-outline-success'"
-               class="btn btn-sm oswald px-3">CONFIRMADO</a>
-            <a th:href="@{/ventas/historial(estado='Cancelado')}"
-               th:classappend="${estadoFiltro == 'Cancelado'} ? 'btn-danger' : 'btn-outline-danger'"
-               class="btn btn-sm oswald px-3">CANCELADO</a>
-          </div>
-        </div>
         <!-- Botón nuevo pedido -->
-        <div class="col-md-3 text-md-end">
+        <div class="col-md-4 text-md-end">
           <a th:href="@{/ventas/nuevo}" class="btn btn-rojo oswald fw-bold px-4">
             <i class="bi bi-cart-plus me-1"></i>NUEVA VENTA
           </a>
@@ -106,7 +94,7 @@
               <tr>
                 <th class="ps-3">#</th>
                 <th>CLIENTE</th>
-                <th>PRODUCTO</th>
+                <th>DNI CLIENTE</th>
                 <th>FECHA</th>
                 <th>MÉTODO DE PAGO</th>
                 <th class="text-end">TOTAL VENTA</th>
@@ -136,69 +124,41 @@
                   <div class="d-flex align-items-center gap-2">
                     <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
                          style="width:34px;height:34px;background:#C0392B;font-size:.8rem;flex-shrink:0"
-                         th:text="${v.cliente != null} ? ${v.cliente.getIniciales()} : '?'">JQ</div>
-                    <span class="fw-semibold small" th:text="${v.cliente != null} ? ${v.cliente.nombre} : 'Sin cliente'">Juan</span>
+                         th:text="${v.cliente != null ? v.cliente.getIniciales() : '?'}">JQ</div>
+                    <span class="fw-semibold small" th:text="${v.cliente != null ? v.cliente.nombre : 'Sin cliente'}">Juan</span>
                   </div>
                 </td>
 
-                <td class="small text-muted">
-                  <span th:if="${#lists.isEmpty(v.detalles)}">-</span>
-                  <span th:each="dv,iterStat : ${v.detalles}">
-                    <span th:text="${dv.producto.nombre}">Producto</span><span th:if="${!iterStat.last}">, </span>
-                  </span>
+                <td class="small font-monospace text-muted" th:text="${v.cliente != null ? v.cliente.dni : '-'}">
+                   —
                 </td>
 
-                <td class="small" th:text="${v.fecha != null} ? ${#temporals.format(v.fecha,'dd/MM/yyyy HH:mm')} : '-'">01/06/2026</td>
+                <td class="small" th:text="${v.fecha != null ? #temporals.format(v.fecha,'dd/MM/yyyy HH:mm') : '-'}">01/06/2026</td>
 
                 <td>
                   <span class="badge bg-secondary text-uppercase small"
-                        th:text="${v.metodoPago != null} ? ${v.metodoPago} : '-'">Efectivo</span>
+                        th:text="${v.metodoPago != null ? v.metodoPago : '-'}">Efectivo</span>
                 </td>
 
                 <td class="text-end fw-bold" style="color:#C0392B"
                     th:text="${v.total != null ? 'S/ ' + #numbers.formatDecimal(v.total,1,2) : 'S/ 0.00'}">S/ 0.00</td>
 
-
-
                 <!-- Acciones -->
                 <td class="text-center pe-3">
-                  <div class="d-flex justify-content-center gap-1 flex-wrap">
+                  <div class="d-flex justify-content-center gap-1 flex-wrap align-items-center">
 
-                    <!-- Confirmar (solo si Pendiente) -->
-                    <form th:if="${v.estado == 'Pendiente'}"
-                          th:action="@{/ventas/{id}/confirmar(id=${v.id})}" method="post"
-                          onsubmit="return confirm('¿Confirmar esta venta?')">
-                      <button type="submit" class="btn btn-success btn-accion" title="Confirmar">
-                        <i class="bi bi-check-lg me-1"></i>Confirmar
-                      </button>
-                    </form>
+                    <!-- Botón de Icono de Ojo para abrir modal de detalles de forma declarativa -->
+                    <button type="button" class="btn btn-outline-primary btn-accion px-2" data-bs-toggle="modal" th:data-bs-target="'#modalDetalles' + ${v.id}" title="Ver detalles">
+                      <i class="bi bi-eye-fill"></i>
+                    </button>
 
-                    <!-- Cancelar (solo si Pendiente) -->
-                    <form th:if="${v.estado == 'Pendiente'}"
-                          th:action="@{/ventas/{id}/cancelar(id=${v.id})}" method="post"
-                          onsubmit="return confirm('¿Cancelar esta venta?')">
-                      <button type="submit" class="btn btn-warning btn-accion text-dark" title="Cancelar">
-                        <i class="bi bi-x-lg me-1"></i>Cancelar
-                      </button>
-                    </form>
-
-                    <!-- Poner Pendiente (si está Cancelado) -->
-                    <form th:if="${v.estado == 'Cancelado'}"
-                          th:action="@{/ventas/{id}/estado(id=${v.id})}" method="post"
-                          onsubmit="return confirm('¿Reactivar esta venta como Pendiente?')">
-                      <input type="hidden" name="estado" value="Pendiente"/>
-                      <button type="submit" class="btn btn-outline-warning btn-accion" title="Reactivar">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reactivar
-                      </button>
-                    </form>
-
-                    <!-- Eliminar (siempre disponible) -->
-                    <form th:action="@{/ventas/{id}/eliminar(id=${v.id})}" method="post"
-                          onsubmit="return confirm('¿Eliminar esta venta definitivamente? Esta acción no se puede deshacer.')">
-                      <button type="submit" class="btn btn-outline-danger btn-accion" title="Eliminar">
-                        <i class="bi bi-trash3"></i>
-                      </button>
-                    </form>
+                    <!-- Eliminar (usando modal de confirmación integrado en la app) -->
+                    <button type="button" class="btn btn-outline-danger btn-accion px-2"
+                            data-bs-toggle="modal" data-bs-target="#modalConfirmarEliminar"
+                            th:attr="data-id=${v.id}"
+                            title="Eliminar venta">
+                      <i class="bi bi-trash3"></i>
+                    </button>
 
                   </div>
                 </td>
@@ -224,7 +184,138 @@
 
   </div>
 
+  <!-- Modales de detalle (colocados fuera de la tabla para evitar conflictos de renderizado HTML) -->
+  <div th:each="v : ${ventas}">
+    <!-- Modal Detalles de Venta (Boleta) -->
+    <div class="modal fade text-start" th:id="'modalDetalles' + ${v.id}" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg printable-receipt" style="border-radius:12px; overflow:hidden;">
+          <div class="modal-header bg-dark text-white p-3">
+            <h5 class="modal-title oswald text-uppercase m-0" id="modalDetallesLabel" style="font-size:1.05rem; letter-spacing:1px;">
+              <i class="bi bi-receipt me-2 text-danger"></i>DETALLE DE COMPRA #<span th:text="${v.id}">1</span>
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body p-4 bg-white">
+            <!-- Encabezado de la Boleta -->
+            <div class="text-center mb-4">
+              <h4 class="oswald fw-bold text-danger mb-0" style="font-size:1.3rem; letter-spacing:1.5px;" th:text="${nombreTienda}">FerroVoz Ferretería</h4>
+              <small class="text-muted text-uppercase font-monospace" style="font-size:0.7rem; letter-spacing:1px;">Boleta de Venta Electrónica</small>
+            </div>
+            
+            <div class="row g-2 mb-3" style="font-size:0.8rem;">
+              <div class="col-6 text-muted">
+                <strong>Cliente:</strong><br>
+                <span class="text-dark fw-semibold" th:text="${v.cliente != null ? v.cliente.nombre : 'Sin cliente'}">Juan</span><br>
+                <strong>DNI/RUC:</strong> <span class="text-dark" th:text="${v.cliente != null ? v.cliente.dni : '-'}">12345678</span>
+              </div>
+              <div class="col-6 text-end text-muted">
+                <strong>Fecha:</strong><br>
+                <span class="text-dark" th:text="${v.fecha != null ? #temporals.format(v.fecha,'dd/MM/yyyy HH:mm') : '-'}">-</span><br>
+                <strong>Vendedor:</strong> <span class="text-dark fw-semibold" th:text="${v.usuario != null ? v.usuario.username : 'admin'}">admin</span>
+              </div>
+            </div>
+            
+            <hr class="my-3">
+            
+            <!-- Tabla de Productos -->
+            <div class="table-responsive">
+              <table class="table table-sm table-borderless align-middle mb-0" style="font-size:0.8rem;">
+                <thead>
+                  <tr class="text-muted border-bottom" style="font-size:0.75rem; text-transform:uppercase;">
+                    <th>Producto</th>
+                    <th class="text-center" style="width:15%;">Cant.</th>
+                    <th class="text-end" style="width:25%;">P. Unit</th>
+                    <th class="text-end" style="width:25%;">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="dv : ${v.detalles}" class="border-bottom" style="border-bottom-style: dashed !important; border-bottom-color: #dee2e6 !important;">
+                    <td class="py-2 fw-semibold text-dark" th:text="${dv.producto.nombre}">Nombre Producto</td>
+                    <td class="text-center py-2 text-muted" th:text="${dv.cantidad}">1</td>
+                    <td class="text-end py-2 text-muted" th:text="${'S/ ' + #numbers.formatDecimal(dv.precio,1,2)}">S/ 0.00</td>
+                    <td class="text-end py-2 fw-bold text-dark" th:text="${'S/ ' + #numbers.formatDecimal(dv.subtotal,1,2)}">S/ 0.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <hr class="my-3">
+            
+            <!-- Totales -->
+            <div class="row align-items-center mb-2" style="font-size:0.8rem;">
+              <div class="col-6 text-muted">Método de pago:</div>
+              <div class="col-6 text-end text-dark fw-semibold text-uppercase" th:text="${v.metodoPago != null ? v.metodoPago : 'No especificado'}">Efectivo</div>
+            </div>
+            <div class="row align-items-center mb-3" style="font-size:0.8rem;">
+              <div class="col-6 text-muted">Estado de venta:</div>
+              <div class="col-6 text-end">
+                <span class="badge bg-success" th:text="${v.estado}">Confirmado</span>
+              </div>
+            </div>
+            
+            <div class="p-3 bg-light rounded d-flex justify-content-between align-items-center" style="border: 1px solid #e9ecef;">
+              <span class="oswald fw-bold text-uppercase text-muted" style="font-size:0.9rem; letter-spacing:0.5px;">Total a Pagar</span>
+              <span class="oswald fw-bold text-danger" style="font-size:1.25rem; letter-spacing:0.5px;" th:text="${v.total != null ? 'S/ ' + #numbers.formatDecimal(v.total,1,2) : 'S/ 0.00'}">S/ 0.00</span>
+            </div>
+          </div>
+          <div class="modal-footer bg-light border-0 p-3">
+            <button type="button" class="btn btn-secondary btn-sm oswald px-3" data-bs-dismiss="modal" style="font-size:0.75rem; letter-spacing:0.5px;">Cerrar</button>
+            <button type="button" class="btn btn-danger btn-sm oswald px-3" onclick="window.print()" style="font-size:0.75rem; letter-spacing:0.5px;"><i class="bi bi-printer me-1"></i>Imprimir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Confirmar Eliminación -->
+  <div class="modal fade" id="modalConfirmarEliminar" tabindex="-1" aria-labelledby="modalConfirmarEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius:12px; overflow:hidden;">
+        <div class="modal-header bg-dark text-white p-3" style="border-bottom:3px solid #C0392B;">
+          <h5 class="modal-title oswald text-uppercase m-0" id="modalConfirmarEliminarLabel">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>CONFIRMAR ELIMINACIÓN
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body p-4 text-start bg-white">
+          <p class="mb-1 text-muted small">VENTA SELECCIONADA</p>
+          <h5 class="fw-bold oswald text-danger mb-3" id="eliminarVentaIdLabel">#—</h5>
+          <p class="mb-2">¿Estás seguro de que deseas eliminar esta venta definitivamente del sistema?</p>
+          <p class="text-muted small mb-0"><i class="bi bi-info-circle me-1"></i>Esta acción devolverá los productos vendidos al stock de inventario y no se puede deshacer.</p>
+        </div>
+        <div class="modal-footer bg-light border-0 p-3">
+          <button type="button" class="btn btn-secondary btn-sm oswald px-3" data-bs-dismiss="modal">CANCELAR</button>
+          <form id="formConfirmarEliminar" method="post">
+            <button type="submit" class="btn btn-danger btn-sm oswald px-3"><i class="bi bi-trash3 me-1"></i>ELIMINAR DEFINITIVAMENTE</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
+
+<th:block layout:fragment="scripts">
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', () => {
+      const modalEliminar = document.getElementById('modalConfirmarEliminar');
+      if (modalEliminar) {
+        modalEliminar.addEventListener('show.bs.modal', e => {
+          const id = e.relatedTarget.getAttribute('data-id');
+          document.getElementById('eliminarVentaIdLabel').textContent = '#' + id;
+          const form = document.getElementById('formConfirmarEliminar');
+          
+          // Generar URL base usando Thymeleaf
+          let urlTemplate = /*[[@{/ventas/__ID__/eliminar}]]*/ '/ventas/ID/eliminar';
+          form.action = urlTemplate.replace('__ID__', id);
+        });
+      }
+    });
+    /*]]>*/
+  </script>
+</th:block>
 
 </body>
 </html>

@@ -25,7 +25,7 @@
       <!-- Imagen grande -->
       <div class="col-md-5">
         <div class="detalle-img-wrap">
-          <img th:src="@{${producto.imagen}}"
+          <img th:src="${producto.imagen != null && producto.imagen.startsWith('data:')} ? ${producto.imagen} : @{${producto.imagen != null ? producto.imagen : '/img/productos/sin-imagen.jpg'}}"
                th:alt="${producto.nombre}"
                class="img-fluid rounded-3 w-100"
                style="max-height:380px;object-fit:cover;"

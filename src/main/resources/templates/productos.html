@@ -81,7 +81,7 @@
 
           <!-- Imagen -->
           <div class="prod-img-wrap">
-            <img th:src="@{${p.imagen}}" th:alt="${p.nombre}" class="prod-imagen"
+            <img th:src="${p.imagen != null && p.imagen.startsWith('data:')} ? ${p.imagen} : @{${p.imagen != null ? p.imagen : '/img/productos/sin-imagen.jpg'}}" th:alt="${p.nombre}" class="prod-imagen"
                  onerror="this.onerror=null; this.src='/img/productos/sin-imagen.jpg'">
             <span class="prod-cat-overlay oswald" th:text="${p.categoria}">Herramientas</span>
           </div>
@@ -110,6 +110,13 @@
                     data-bs-toggle="modal" data-bs-target="#modalEditarProducto"
                     th:attr="data-id=${p.id}">
               <i class="bi bi-pencil-square me-1"></i>EDITAR
+            </button>
+            <button type="button"
+                    class="btn btn-outline-success btn-sm oswald fw-bold px-3"
+                    data-bs-toggle="modal" data-bs-target="#modalAgregarStock"
+                    th:attr="data-id=${p.id}"
+                    title="Agregar stock">
+              <i class="bi bi-plus-lg"></i>
             </button>
             <button type="button"
                     class="btn btn-outline-danger btn-sm w-100 oswald fw-bold"
@@ -322,6 +329,38 @@
     </div>
   </div>
 
+  <!-- ═══ MODAL AGREGAR STOCK ═══ -->
+  <div class="modal fade" id="modalAgregarStock" tabindex="-1"
+       aria-labelledby="modalAgregarStockLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="background:#2C3E50;border-bottom:3px solid #198754;">
+          <h5 class="modal-title oswald text-white" id="modalAgregarStockLabel">
+            <i class="bi bi-plus-circle-fill me-2 text-success"></i>AGREGAR STOCK
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="formAgregarStock" method="post" class="needs-validation" novalidate>
+          <div class="modal-body text-start">
+            <div class="mb-3">
+              <p class="mb-1 text-muted small">PRODUCTO</p>
+              <h5 class="fw-bold oswald text-dark mb-3" id="stockProductoNombre">—</h5>
+              <label class="form-label fw-semibold">Cantidad a sumar <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="cantidadStock"
+                     min="1" placeholder="Ej: 50" required>
+              <div class="invalid-feedback">Ingresa una cantidad mayor a 0.</div>
+              <div class="form-text mt-2 text-muted">La cantidad indicada se sumará al stock actual del producto.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success oswald fw-bold">SUMAR STOCK</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <th:block layout:fragment="scripts">
@@ -350,6 +389,21 @@
           form.querySelector('[name=stock]').value       = p.stock;
           form.querySelector('[name=unidad]').value      = p.unidad;
 
+        });
+      }
+
+      // ── Modal Agregar Stock ──
+      const modalAgregarStock = document.getElementById('modalAgregarStock');
+      if (modalAgregarStock) {
+        modalAgregarStock.addEventListener('show.bs.modal', e => {
+          const id = e.relatedTarget.getAttribute('data-id');
+          const p  = productosData.find(x => String(x.id) === String(id));
+          if (!p) return;
+
+          const form = document.getElementById('formAgregarStock');
+          form.action = productosBaseUrl + '/' + id + '/agregar-stock';
+          document.getElementById('stockProductoNombre').textContent = p.nombre;
+          form.querySelector('[name=cantidadStock]').value = '';
           form.classList.remove('was-validated');
         });
       }

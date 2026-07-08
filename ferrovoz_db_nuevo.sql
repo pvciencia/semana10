@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS producto (
     precio      DECIMAL(10,2) NOT NULL,
     stock       INT           NOT NULL DEFAULT 0,
     descripcion TEXT,
+    imagen      LONGTEXT,
     CONSTRAINT pk_producto PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

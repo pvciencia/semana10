@@ -39,13 +39,23 @@
 
             <form th:action="@{/ventas/registrar}" method="post" class="needs-validation" novalidate>
 
-              <!-- Cliente (ingresar nombre manualmente) -->
-              <div class="mb-3">
-                <label class="form-label fw-semibold">
-                  Cliente <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control" name="clienteNombre" required placeholder="Nombre del cliente">
-                <div class="invalid-feedback">Debes ingresar el nombre del cliente.</div>
+              <!-- Cliente (ingresar nombre y DNI) -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">
+                    Nombre del Cliente <span class="text-danger">*</span>
+                  </label>
+                  <input type="text" class="form-control" name="clienteNombre" required placeholder="Nombre del cliente">
+                  <div class="invalid-feedback">Debes ingresar el nombre del cliente.</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">
+                    DNI del Cliente <span class="text-danger">*</span>
+                  </label>
+                  <input type="text" class="form-control" name="clienteDni" required 
+                         placeholder="Ej: 12345678" pattern="[0-9]{8}" maxlength="8">
+                  <div class="invalid-feedback">Debes ingresar un DNI válido de 8 dígitos numéricos.</div>
+                </div>
               </div>
 
               <!-- Productos (múltiples) -->
@@ -75,37 +85,7 @@
                 <div class="form-text">Puedes agregar varios productos por venta.</div>
               </div>
 
-              <th:block layout:fragment="scripts">
-                <script>
-                  document.addEventListener('DOMContentLoaded', function(){
-                    const container = document.getElementById('productos-container');
-                    const addBtn = document.getElementById('add-producto');
 
-                    function bindRemove(btn){
-                      btn.addEventListener('click', function(){
-                        const line = btn.closest('.producto-line');
-                        if (container.querySelectorAll('.producto-line').length > 1){
-                          line.remove();
-                        } else {
-                          line.querySelector('select[name="productoId"]').value = '';
-                          line.querySelector('input[name="cantidad"]').value = 1;
-                        }
-                      });
-                    }
-
-                    container.querySelectorAll('.btn-remove-producto').forEach(bindRemove);
-
-                    addBtn.addEventListener('click', function(){
-                      const first = container.querySelector('.producto-line');
-                      const clone = first.cloneNode(true);
-                      clone.querySelector('select[name="productoId"]').value = '';
-                      clone.querySelector('input[name="cantidad"]').value = 1;
-                      container.appendChild(clone);
-                      bindRemove(clone.querySelector('.btn-remove-producto'));
-                    });
-                  });
-                </script>
-              </th:block>
 
               <!-- Método de pago -->
               <div class="row g-3 mb-3">
@@ -145,6 +125,38 @@
   </div>
 
 </div>
+
+<th:block layout:fragment="scripts">
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const container = document.getElementById('productos-container');
+      const addBtn = document.getElementById('add-producto');
+
+      function bindRemove(btn){
+        btn.addEventListener('click', function(){
+          const line = btn.closest('.producto-line');
+          if (container.querySelectorAll('.producto-line').length > 1){
+            line.remove();
+          } else {
+            line.querySelector('select[name="productoId"]').value = '';
+            line.querySelector('input[name="cantidad"]').value = 1;
+          }
+        });
+      }
+
+      container.querySelectorAll('.btn-remove-producto').forEach(bindRemove);
+
+      addBtn.addEventListener('click', function(){
+        const first = container.querySelector('.producto-line');
+        const clone = first.cloneNode(true);
+        clone.querySelector('select[name="productoId"]').value = '';
+        clone.querySelector('input[name="cantidad"]').value = 1;
+        container.appendChild(clone);
+        bindRemove(clone.querySelector('.btn-remove-producto'));
+      });
+    });
+  </script>
+</th:block>
 
 </body>
 </html>

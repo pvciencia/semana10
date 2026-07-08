@@ -26,8 +26,8 @@ public class Producto {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    // ruta imagen (guardada como ruta relativa: /img/productos/archivo.ext)
-    @Column(length = 255)
+    // datos Base64 de la imagen o ruta por defecto
+    @Column(columnDefinition = "LONGTEXT")
     private String imagen;
 
     @Transient
