@@ -37,7 +37,8 @@
             <span th:text="${totalProductos} + ' productos'">12 productos</span>
           </span>
           <button class="btn btn-rojo oswald fw-bold"
-                  data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
+                  data-bs-toggle="modal" data-bs-target="#modalNuevoProducto"
+                  sec:authorize="hasAnyRole('ADMIN', 'ALMACENERO')">
             <i class="bi bi-plus-circle me-2"></i>NUEVO PRODUCTO
           </button>
         </div>
@@ -108,26 +109,39 @@
             <button type="button"
                     class="btn btn-warning btn-sm w-100 oswald fw-bold text-white"
                     data-bs-toggle="modal" data-bs-target="#modalEditarProducto"
-                    th:attr="data-id=${p.id}">
+                    th:attr="data-id=${p.id}"
+                    sec:authorize="hasAnyRole('ADMIN', 'ALMACENERO')">
               <i class="bi bi-pencil-square me-1"></i>EDITAR
             </button>
             <button type="button"
                     class="btn btn-outline-success btn-sm oswald fw-bold px-3"
                     data-bs-toggle="modal" data-bs-target="#modalAgregarStock"
                     th:attr="data-id=${p.id}"
-                    title="Agregar stock">
+                    title="Agregar stock"
+                    sec:authorize="hasAnyRole('ADMIN', 'ALMACENERO')">
               <i class="bi bi-plus-lg"></i>
             </button>
             <button type="button"
                     class="btn btn-outline-danger btn-sm w-100 oswald fw-bold"
                     data-bs-toggle="modal" data-bs-target="#modalEliminarProducto"
-                    th:attr="data-id=${p.id}">
+                    th:attr="data-id=${p.id}"
+                    sec:authorize="hasAnyRole('ADMIN', 'ALMACENERO')">
               <i class="bi bi-trash me-1"></i>ELIMINAR
             </button>
-            <a th:href="@{/productos/{id}(id=${p.id})}"
-               class="btn btn-outline-secondary btn-sm" title="Ver detalle">
+            <button type="button"
+                    class="btn btn-outline-secondary btn-sm w-100 oswald fw-bold" title="Ver detalle"
+                    data-bs-toggle="modal" data-bs-target="#modalVerDetalleProducto"
+                    th:attr="data-id=${p.id}"
+                    sec:authorize="!hasAnyRole('ADMIN', 'ALMACENERO')">
+              <i class="bi bi-eye me-1"></i>VER DETALLE
+            </button>
+            <button type="button"
+                    class="btn btn-outline-secondary btn-sm" title="Ver detalle"
+                    data-bs-toggle="modal" data-bs-target="#modalVerDetalleProducto"
+                    th:attr="data-id=${p.id}"
+                    sec:authorize="hasAnyRole('ADMIN', 'ALMACENERO')">
               <i class="bi bi-eye"></i>
-            </a>
+            </button>
           </div>
 
         </div>
@@ -235,6 +249,7 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <form id="formEditarProducto" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
           <div class="modal-body">
             <div class="row g-3">
               <div class="col-12">
@@ -311,6 +326,7 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <form id="formEliminarProducto" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
           <div class="modal-body">
             <p class="mb-2">¿Estás seguro de que deseas eliminar este producto?</p>
             <p class="fw-bold oswald mb-0" id="eliminarProductoNombre" style="color:#C0392B">—</p>
@@ -341,6 +357,7 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <form id="formAgregarStock" method="post" class="needs-validation" novalidate>
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
           <div class="modal-body text-start">
             <div class="mb-3">
               <p class="mb-1 text-muted small">PRODUCTO</p>
@@ -357,6 +374,57 @@
             <button type="submit" class="btn btn-success oswald fw-bold">SUMAR STOCK</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODAL VER DETALLE PRODUCTO ═══ -->
+  <div class="modal fade" id="modalVerDetalleProducto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg" style="border-radius:12px; overflow:hidden;">
+        <div class="modal-header text-white p-3" style="background:#2C3E50;border-bottom:3px solid #BDC3C7;">
+          <h5 class="modal-title oswald text-uppercase m-0">
+            <i class="bi bi-eye-fill me-2"></i>DETALLES DEL PRODUCTO
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body p-4 bg-white">
+          <div class="row g-4">
+            <div class="col-md-5 text-center">
+              <div class="p-2 border rounded-3 bg-light d-flex align-items-center justify-content-center" style="min-height:220px;">
+                <img id="detalleProductoImagen" src="/img/productos/sin-imagen.jpg" alt="Imagen del producto" 
+                     class="img-fluid rounded" style="max-height:200px; object-fit:contain;">
+              </div>
+            </div>
+            <div class="col-md-7">
+              <span class="badge bg-danger text-uppercase mb-2 oswald" id="detalleProductoCategoria">Categoría</span>
+              <h3 class="fw-bold oswald text-dark mb-2" id="detalleProductoNombre">Nombre del Producto</h3>
+              <p class="text-muted mb-3" id="detalleProductoDescripcion">Descripción del producto...</p>
+              
+              <hr class="my-3">
+              
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="p-3 border rounded bg-light">
+                    <p class="mb-1 text-muted small"><i class="bi bi-tag-fill me-1"></i>PRECIO UNITARIO</p>
+                    <h4 class="fw-bold text-dark mb-0 oswald" id="detalleProductoPrecio">S/ 0.00</h4>
+                    <small class="text-muted">Por <span id="detalleProductoUnidad">unidad</span></small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="p-3 border rounded bg-light">
+                    <p class="mb-1 text-muted small"><i class="bi bi-box-seam-fill me-1"></i>STOCK ACTUAL</p>
+                    <h4 class="fw-bold text-dark mb-0 oswald" id="detalleProductoStock">0 unidades</h4>
+                    <small class="text-muted">En almacén</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0 p-3">
+          <button type="button" class="btn btn-secondary oswald px-4" data-bs-dismiss="modal">CERRAR</button>
+        </div>
       </div>
     </div>
   </div>
@@ -419,6 +487,30 @@
           const form = document.getElementById('formEliminarProducto');
           form.action = productosBaseUrl + '/' + id + '/eliminar';
           document.getElementById('eliminarProductoNombre').textContent = p.nombre;
+        });
+      }
+
+      // ── Modal Ver Detalle ──
+      const modalVerDetalle = document.getElementById('modalVerDetalleProducto');
+      if (modalVerDetalle) {
+        modalVerDetalle.addEventListener('show.bs.modal', e => {
+          const id = e.relatedTarget.getAttribute('data-id');
+          const p  = productosData.find(x => String(x.id) === String(id));
+          if (!p) return;
+
+          document.getElementById('detalleProductoNombre').textContent = p.nombre;
+          document.getElementById('detalleProductoCategoria').textContent = p.categoria;
+          document.getElementById('detalleProductoDescripcion').textContent = p.descripcion;
+          document.getElementById('detalleProductoPrecio').textContent = 'S/ ' + Number(p.precio).toFixed(2);
+          document.getElementById('detalleProductoUnidad').textContent = p.unidad;
+          document.getElementById('detalleProductoStock').textContent = p.stock + ' unidades';
+          
+          const imgElement = document.getElementById('detalleProductoImagen');
+          if (p.imagen) {
+            imgElement.src = p.imagen;
+          } else {
+            imgElement.src = '/img/productos/sin-imagen.jpg';
+          }
         });
       }
 

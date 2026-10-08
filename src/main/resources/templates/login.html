@@ -155,30 +155,29 @@
 
         </h5>
 
-        <form id="loginForm" class="needs-validation" novalidate>
+        <form th:action="@{/login}" method="post" id="loginForm" class="needs-validation" novalidate>
 
-          <!-- Usuario -->
+          <!-- Correo -->
           <div class="mb-3">
 
-            <label class="form-label fw-semibold" for="usuario">
-              Usuario <span class="text-danger">*</span>
+            <label class="form-label fw-semibold" for="username">
+              Correo electrónico <span class="text-danger">*</span>
             </label>
 
             <div class="input-group has-validation">
 
               <span class="input-group-text">
-                <i class="bi bi-person text-muted"></i>
+                <i class="bi bi-envelope text-muted"></i>
               </span>
 
-              <input type="text"
+              <input type="email"
                      class="form-control"
-                     placeholder="Ingresa tu usuario"
-                     id="usuario"
-                     name="usuario"
-                     minlength="3"
+                     placeholder="Ingresa tu correo"
+                     id="username"
+                     name="username"
                      required>
 
-              <div class="invalid-feedback">Ingresa tu usuario (mínimo 3 caracteres).</div>
+              <div class="invalid-feedback">Ingresa tu correo electrónico.</div>
 
             </div>
 
@@ -202,7 +201,6 @@
                      placeholder="••••••••"
                      id="password"
                      name="password"
-                     minlength="4"
                      required>
 
               <button class="btn btn-outline-secondary"
@@ -213,7 +211,7 @@
 
               </button>
 
-              <div class="invalid-feedback">Ingresa tu contraseña (mínimo 4 caracteres).</div>
+              <div class="invalid-feedback">Ingresa tu contraseña.</div>
 
             </div>
 
@@ -226,10 +224,10 @@
 
               <input type="checkbox"
                      class="form-check-input"
-                     id="recuerdame"
-                     name="recuerdame">
+                     id="remember-me"
+                     name="remember-me">
 
-              <label class="form-check-label" for="recuerdame">
+              <label class="form-check-label" for="remember-me">
                 Recordarme
               </label>
 
@@ -237,7 +235,9 @@
 
             <a href="#"
                class="text-decoration-none small"
-               style="color:var(--rojo)">
+               style="color:var(--rojo)"
+               data-bs-toggle="modal"
+               data-bs-target="#modalOlvidoPass">
 
               ¿Olvidaste tu contraseña?
 
@@ -253,31 +253,27 @@
 
           </button>
 
-          <!-- Alert -->
-          <div id="loginAlert"
-               class="alert alert-danger mt-3 d-none"
+          <!-- Alert de error (Spring Security) -->
+          <div th:if="${param.error}"
+               class="alert alert-danger mt-3"
                role="alert">
 
             <i class="bi bi-exclamation-triangle me-2"></i>
-            Usuario o contraseña incorrectos.
+            Correo o contraseña incorrectos.
+
+          </div>
+
+          <!-- Alert de logout (Spring Security) -->
+          <div th:if="${param.logout}"
+               class="alert alert-success mt-3"
+               role="alert">
+
+            <i class="bi bi-check-circle me-2"></i>
+            Sesión cerrada correctamente.
 
           </div>
 
         </form>
-
-        <!-- Divider -->
-        <div class="login-divider">
-          <span>o accede como visitante</span>
-        </div>
-
-        <!-- Demo -->
-        <a th:href="@{/}"
-           class="btn btn-outline-secondary w-100">
-
-          <i class="bi bi-eye me-2"></i>
-          Ver demo sin iniciar sesión
-
-        </a>
 
         <p class="text-center text-muted small mt-4 mb-0">
 
@@ -290,6 +286,28 @@
 
     </div>
 
+  </div>
+
+  <!-- Modal Olvido Contraseña -->
+  <div class="modal fade" id="modalOlvidoPass" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header" style="background:#2C3E50;border-bottom:3px solid #C0392B;">
+          <h5 class="modal-title oswald text-white"><i class="bi bi-question-circle me-2"></i>RECUPERAR CONTRASEÑA</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center p-4">
+          <i class="bi bi-telephone-outbound text-danger display-4 mb-3 d-block"></i>
+          <p class="mb-3 fs-5 fw-semibold text-dark">¿Olvidaste tu contraseña?</p>
+          <p class="text-muted mb-4">Escribe a este número para que te ayude un administrador:</p>
+          <h3 class="oswald text-danger fw-bold mb-3" style="letter-spacing:1px;">977394638</h3>
+          <p class="small text-muted mb-0"><i class="bi bi-clock me-1"></i>Soporte de Lunes a Sábado de 8 AM a 6 PM</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -310,40 +328,6 @@
     }
 
   }
-
-  const loginForm = document.getElementById('loginForm');
-
-  loginForm.addEventListener('submit', function (e) {
-
-    // Siempre evitamos el envío real: esta pantalla es una demo sin backend.
-    e.preventDefault();
-    e.stopPropagation();
-
-    // 1) Validación Bootstrap: si falta usuario/contraseña, se muestran
-    //    los mensajes invalid-feedback y no se continúa con el login.
-    if (!loginForm.checkValidity()) {
-      loginForm.classList.add('was-validated');
-      return;
-    }
-
-    loginForm.classList.add('was-validated');
-
-    // 2) Validación de negocio (credenciales) una vez que el formulario
-    //    ya es válido a nivel de Bootstrap.
-    const u = document.getElementById('usuario').value.trim();
-    const p = document.getElementById('password').value.trim();
-    const alerta = document.getElementById('loginAlert');
-
-    if (u === 'admin' && p === '1234') {
-      window.location.href = '/';
-    } else {
-      alerta.classList.remove('d-none');
-      setTimeout(() => {
-        alerta.classList.add('d-none');
-      }, 3000);
-    }
-
-  });
 
 </script>
 

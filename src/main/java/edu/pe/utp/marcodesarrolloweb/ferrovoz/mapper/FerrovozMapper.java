@@ -61,4 +61,39 @@ public class FerrovozMapper {
     public List<VentaDTO> toDTOListVentas(List<Venta> list) {
         return list.stream().map(this::toDTO).toList();
     }
+
+    // ── Producto ────────────────────────────────────────────
+
+    public ProductoDTO toDTO(Producto p) {
+        if (p == null) return null;
+        return new ProductoDTO(
+            p.getId(),
+            p.getNombre(),
+            p.getDescripcion(),
+            p.getCategoria(),
+            p.getPrecio(),
+            p.getStock(),
+            p.getUnidad(),
+            p.getImagen()
+        );
+    }
+
+    public Producto toEntity(ProductoDTO dto) {
+        if (dto == null) return null;
+        Producto p = new Producto();
+        p.setId(dto.getId());
+        p.setNombre(dto.getNombre());
+        p.setDescripcion(dto.getDescripcion());
+        p.setCategoria(dto.getCategoria());
+        p.setPrecio(dto.getPrecio());
+        p.setStock(dto.getStock());
+        p.setUnidad(dto.getUnidad());
+        p.setImagen(dto.getImagen());
+        return p;
+    }
+
+    public List<ProductoDTO> toDTOListProductos(List<Producto> list) {
+        if (list == null) return List.of();
+        return list.stream().map(this::toDTO).toList();
+    }
 }

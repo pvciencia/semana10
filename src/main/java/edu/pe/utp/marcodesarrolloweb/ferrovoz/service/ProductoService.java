@@ -1,6 +1,8 @@
 package edu.pe.utp.marcodesarrolloweb.ferrovoz.service;
 
 import edu.pe.utp.marcodesarrolloweb.ferrovoz.model.Producto;
+import edu.pe.utp.marcodesarrolloweb.ferrovoz.dto.ProductoDTO;
+import edu.pe.utp.marcodesarrolloweb.ferrovoz.mapper.FerrovozMapper;
 import edu.pe.utp.marcodesarrolloweb.ferrovoz.repository.ProductoRepository;
 import edu.pe.utp.marcodesarrolloweb.ferrovoz.model.Categoria;
 import edu.pe.utp.marcodesarrolloweb.ferrovoz.repository.CategoriaRepository;
@@ -23,20 +25,23 @@ public class ProductoService {
     @Autowired
     private CategoriaRepository categoriaRepo;
 
-    public List<Producto> listarTodos() {
-        return productoRepo.findAll();
+    @Autowired
+    private FerrovozMapper mapper;
+
+    public List<ProductoDTO> listarTodos() {
+        return mapper.toDTOListProductos(productoRepo.findAll());
     }
 
-    public List<Producto> listarDisponibles() {
-        return productoRepo.findByStockGreaterThan(0);
+    public List<ProductoDTO> listarDisponibles() {
+        return mapper.toDTOListProductos(productoRepo.findByStockGreaterThan(0));
     }
 
-    public List<Producto> listarPorCategoria(String categoria) {
-        return productoRepo.findByCategoriaIgnoreCase(categoria);
+    public List<ProductoDTO> listarPorCategoria(String categoria) {
+        return mapper.toDTOListProductos(productoRepo.findByCategoriaIgnoreCase(categoria));
     }
 
-    public List<Producto> buscarPorNombre(String texto) {
-        return productoRepo.findByNombreContainingIgnoreCase(texto);
+    public List<ProductoDTO> buscarPorNombre(String texto) {
+        return mapper.toDTOListProductos(productoRepo.findByNombreContainingIgnoreCase(texto));
     }
 
     public List<String> listarCategorias() {
@@ -47,8 +52,8 @@ public class ProductoService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<Producto> buscarPorId(int id) {
-        return productoRepo.findById(id);
+    public Optional<ProductoDTO> buscarPorId(int id) {
+        return productoRepo.findById(id).map(mapper::toDTO);
     }
 
     public long contarTotal() {
@@ -64,16 +69,17 @@ public class ProductoService {
     }
 
     @Transactional
-    public Producto registrar(Producto p) {
+    public ProductoDTO registrar(ProductoDTO dto) {
+        Producto p = mapper.toEntity(dto);
         if (p.getImagen() == null || p.getImagen().isBlank()) {
             p.setImagen("/img/productos/sin-imagen.jpg");
         }
         if (p.getPrecio() == null) p.setPrecio(BigDecimal.ZERO);
-        return productoRepo.save(p);
+        return mapper.toDTO(productoRepo.save(p));
     }
 
     @Transactional
-    public Optional<Producto> actualizar(int id, Producto datos) {
+    public Optional<ProductoDTO> actualizar(int id, ProductoDTO datos) {
         return productoRepo.findById(id).map(p -> {
             p.setNombre(datos.getNombre());
             p.setDescripcion(datos.getDescripcion());
@@ -84,7 +90,7 @@ public class ProductoService {
             if (datos.getImagen() != null && !datos.getImagen().isBlank()) {
                 p.setImagen(datos.getImagen());
             }
-            return productoRepo.save(p);
+            return mapper.toDTO(productoRepo.save(p));
         });
     }
 

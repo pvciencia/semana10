@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   application:
     name: ferrovoz
   datasource:
@@ -32,3 +36,9 @@ ferrovoz:
   contacto: ventas@ferrovoz.pe
   telefono: "(01) 456-7890"
   direccion: "Av. Industrial 342, Lima, Perú"
+
+# Configuración JWT - Laboratorio 12
+app:
+  jwt:
+    secret: "TechStore2026SecretKeyParaJWTMuyLargaHS256"
+    expiration: 86400000 # 24 horas en milisegundos

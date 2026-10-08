@@ -1,10 +1,12 @@
 package edu.pe.utp.marcodesarrolloweb.ferrovoz.controller;
 
-import edu.pe.utp.marcodesarrolloweb.ferrovoz.model.Producto;
+import edu.pe.utp.marcodesarrolloweb.ferrovoz.dto.ProductoDTO;
 import edu.pe.utp.marcodesarrolloweb.ferrovoz.service.ProductoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -18,6 +20,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/productos")
@@ -38,7 +41,7 @@ public class ProductoController {
                          @RequestParam(value = "q", required = false) String q,
                          Model model) {
 
-        List<Producto> lista;
+        List<ProductoDTO> lista;
         String categoriaActiva = "Todos";
 
         if (categoria != null && !categoria.isBlank()) {
@@ -65,7 +68,7 @@ public class ProductoController {
     public String detalle(@PathVariable("id") int id,
                           Model model,
                           RedirectAttributes ra) {
-        Optional<Producto> opt = productoService.buscarPorId(id);
+        Optional<ProductoDTO> opt = productoService.buscarPorId(id);
         if (opt.isEmpty()) {
             ra.addFlashAttribute("errorMsg", "Producto con ID " + id + " no encontrado.");
             return "redirect:/productos";
@@ -77,14 +80,17 @@ public class ProductoController {
 
     // ── POST /productos/registrar  ───────────────────────────────────────────
     @PostMapping("/registrar")
-    public String registrar(@ModelAttribute Producto producto,
+    public String registrar(@Valid @ModelAttribute ProductoDTO producto,
+                            BindingResult result,
                             @RequestParam(value = "imagenFile", required = false) MultipartFile imagenFile,
                             RedirectAttributes ra) {
 
-        // Validación server-side
-        String error = validarProducto(producto);
-        if (error != null) {
-            ra.addFlashAttribute("errorMsg", error);
+        // Segunda capa: Spring Validator
+        if (result.hasErrors()) {
+            String errores = result.getFieldErrors().stream()
+                .map(e -> e.getDefaultMessage())
+                .collect(Collectors.joining(". "));
+            ra.addFlashAttribute("errorMsg", errores);
             return "redirect:/productos";
         }
 
@@ -109,13 +115,17 @@ public class ProductoController {
     // ── POST /productos/{id}/actualizar  ────────────────────────────────────
     @PostMapping("/{id}/actualizar")
     public String actualizar(@PathVariable("id") int id,
-                             @ModelAttribute Producto producto,
+                             @Valid @ModelAttribute ProductoDTO producto,
+                             BindingResult result,
                              @RequestParam(value = "imagenFile", required = false) MultipartFile imagenFile,
                              RedirectAttributes ra) {
 
-        String error = validarProducto(producto);
-        if (error != null) {
-            ra.addFlashAttribute("errorMsg", error);
+        // Segunda capa: Spring Validator
+        if (result.hasErrors()) {
+            String errores = result.getFieldErrors().stream()
+                .map(e -> e.getDefaultMessage())
+                .collect(Collectors.joining(". "));
+            ra.addFlashAttribute("errorMsg", errores);
             return "redirect:/productos";
         }
 
@@ -144,11 +154,15 @@ public class ProductoController {
     // ── POST /productos/{id}/eliminar  ──────────────────────────────────────
     @PostMapping("/{id}/eliminar")
     public String eliminar(@PathVariable("id") int id, RedirectAttributes ra) {
-        boolean eliminado = productoService.eliminar(id);
-        if (eliminado) {
-            ra.addFlashAttribute("successMsg", "Producto eliminado correctamente.");
-        } else {
-            ra.addFlashAttribute("errorMsg", "No se encontró el producto con ID " + id + ".");
+        try {
+            boolean eliminado = productoService.eliminar(id);
+            if (eliminado) {
+                ra.addFlashAttribute("successMsg", "Producto eliminado correctamente.");
+            } else {
+                ra.addFlashAttribute("errorMsg", "No se encontró el producto con ID " + id + ".");
+            }
+        } catch (Exception e) {
+            ra.addFlashAttribute("errorMsg", "No se puede eliminar el producto porque tiene ventas registradas asociadas.");
         }
         return "redirect:/productos";
     }
@@ -162,9 +176,9 @@ public class ProductoController {
             ra.addFlashAttribute("errorMsg", "La cantidad a sumar debe ser mayor que cero.");
             return "redirect:/productos";
         }
-        Optional<Producto> opt = productoService.buscarPorId(id);
+        Optional<ProductoDTO> opt = productoService.buscarPorId(id);
         if (opt.isPresent()) {
-            Producto p = opt.get();
+            ProductoDTO p = opt.get();
             int nuevoStock = (p.getStock() != null ? p.getStock() : 0) + cantidadStock;
             p.setStock(nuevoStock);
             productoService.actualizar(id, p);
@@ -173,28 +187,5 @@ public class ProductoController {
             ra.addFlashAttribute("errorMsg", "No se encontró el producto con ID " + id + ".");
         }
         return "redirect:/productos";
-    }
-
-    // ── Validación server-side  ──────────────────────────────────────────────
-    private String validarProducto(Producto p) {
-        if (p.getNombre() == null || p.getNombre().isBlank()) {
-            return "El nombre del producto es obligatorio.";
-        }
-        if (p.getNombre().length() < 3) {
-            return "El nombre debe tener al menos 3 caracteres.";
-        }
-        if (p.getDescripcion() == null || p.getDescripcion().isBlank()) {
-            return "La descripción es obligatoria.";
-        }
-        if (p.getCategoria() == null || p.getCategoria().isBlank()) {
-            return "Debes seleccionar una categoría.";
-        }
-        if (p.getPrecio() == null || p.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
-            return "El precio debe ser mayor a 0.";
-        }
-        if (p.getStock() == null || p.getStock() < 0) {
-            return "El stock no puede ser negativo.";
-        }
-        return null; // sin errores
     }
 }

@@ -18,6 +18,7 @@ public class VentaService {
     @Autowired private VentaRepository    ventaRepo;
     @Autowired private ClienteRepository  clienteRepo;
     @Autowired private ProductoRepository productoRepo;
+    @Autowired private UsuarioRepository  usuarioRepo;
 
     @Transactional(readOnly = true)
     public List<Venta> listarTodos() {
@@ -51,7 +52,7 @@ public class VentaService {
     }
 
     @Transactional
-    public Venta registrarFromForm(Integer clienteId, java.util.List<Integer> productoIds, java.util.List<Integer> cantidades, String metodo, String observaciones) {
+    public Venta registrarFromForm(Integer clienteId, java.util.List<Integer> productoIds, java.util.List<Integer> cantidades, String metodo, String observaciones, String username) {
         if (productoIds == null || productoIds.isEmpty()) throw new IllegalArgumentException("Debe indicar al menos un producto.");
         if (cantidades == null || productoIds.size() != cantidades.size()) throw new IllegalArgumentException("Productos y cantidades no coinciden.");
         
@@ -75,6 +76,9 @@ public class VentaService {
         Venta v = new Venta();
         v.setCliente(cliente);
         v.setFecha(LocalDateTime.now());
+        if (username != null) {
+            usuarioRepo.findByUsername(username).ifPresent(v::setUsuario);
+        }
         java.math.BigDecimal total = java.math.BigDecimal.ZERO;
         v.setEstado("Confirmado");
         v.setMetodoPago(metodo);

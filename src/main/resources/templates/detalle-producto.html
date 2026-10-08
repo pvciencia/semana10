@@ -73,7 +73,8 @@
         <div class="d-flex gap-3 flex-wrap">
           <a th:href="@{/ventas/nuevo}"
              class="btn btn-rojo oswald px-4 py-2 fw-bold"
-             th:classappend="${producto.stock == 0} ? 'disabled' : ''">
+             th:classappend="${producto.stock == 0} ? 'disabled' : ''"
+             sec:authorize="hasAnyRole('ADMIN', 'VENDEDOR')">
             <i class="bi bi-cart-plus me-2"></i>REGISTRAR VENTA
           </a>
           <a th:href="@{/productos}" class="btn btn-outline-secondary oswald px-4 py-2">

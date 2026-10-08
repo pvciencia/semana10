@@ -23,59 +23,46 @@
             <span style="font-size:48%;color:#BDC3C7;letter-spacing:6px;">FERRETERÍA</span>
           </h1>
           <p class="hero-sub">
-            Gestiona inventario, ventas y clientes — todo desde un panel rápido y ordenado.
-            Desarrollado con <strong style="color:#fff">Spring Boot + Thymeleaf</strong>.
+            Tu ferretería de confianza. Contamos con una amplia variedad de herramientas industriales, pinturas, materiales de construcción, plomería y electricidad para garantizar el éxito de tus obras y proyectos.
           </p>
           <div class="d-flex flex-wrap gap-3 mt-4">
-            <a th:href="@{/ventas/nuevo}" class="btn btn-rojo px-4 py-2 fw-bold oswald">
-              <i class="bi bi-plus-circle me-2"></i>NUEVA VENTA
+            <a th:href="@{/nosotros}" class="btn btn-rojo px-4 py-2 fw-bold oswald">
+              <i class="bi bi-info-circle me-2"></i>CONÓCENOS
             </a>
-            <a th:href="@{/productos}" class="btn btn-acero-out px-4 py-2 oswald">
-              <i class="bi bi-box-seam me-2"></i>VER INVENTARIO
+            <a th:href="@{/contacto}" class="btn btn-acero-out px-4 py-2 oswald">
+              <i class="bi bi-envelope me-2"></i>CONTACTAR
             </a>
-          </div>
-          <div class="d-flex flex-wrap gap-3 mt-4">
-            <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-circle-fill text-danger" style="font-size:.6rem"></i>
-              <span style="color:#aaa;font-size:.85rem">Total productos</span>
-              <strong style="color:#fff" th:text="${totalProductos}">12</strong>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-circle-fill text-warning" style="font-size:.6rem"></i>
-              <span style="color:#aaa;font-size:.85rem">Stock bajo</span>
-              <strong style="color:#fff" th:text="${stockBajo}">2</strong>
-            </div>
           </div>
         </div>
         <div class="col-lg-5 order-1 order-lg-2">
-          <div class="hero-stats-panel">
-            <p class="oswald mb-3" style="letter-spacing:3px;font-size:.78rem;color:#BDC3C7">RESUMEN GENERAL</p>
+          <div class="hero-stats-panel" style="border-bottom: 4px solid var(--rojo);">
+            <p class="oswald mb-3" style="letter-spacing:3px;font-size:.78rem;color:#BDC3C7">HORARIO DE ATENCIÓN</p>
             <div class="hero-stat-row">
-              <div class="hero-stat-icon"><i class="bi bi-box-seam"></i></div>
+              <div class="hero-stat-icon" style="background:#2C3E50"><i class="bi bi-clock"></i></div>
               <div>
-                <div class="hero-stat-num" th:text="${totalProductos}">12</div>
-                <div class="hero-stat-lbl">Productos en inventario</div>
+                <div class="hero-stat-num" style="font-size:1.15rem;color:#fff;">Lunes a Sábado</div>
+                <div class="hero-stat-lbl">8:00 AM — 6:00 PM</div>
               </div>
             </div>
             <div class="hero-stat-row">
-              <div class="hero-stat-icon" style="background:#F39C12"><i class="bi bi-exclamation-triangle"></i></div>
+              <div class="hero-stat-icon" style="background:#2C3E50"><i class="bi bi-calendar-x"></i></div>
               <div>
-                <div class="hero-stat-num" th:text="${stockBajo}">1</div>
-                <div class="hero-stat-lbl">Productos con stock bajo (≤5)</div>
+                <div class="hero-stat-num" style="font-size:1.15rem;color:#fff;">Domingos y Feriados</div>
+                <div class="hero-stat-lbl">Cerrado por descanso</div>
               </div>
             </div>
             <div class="hero-stat-row">
-              <div class="hero-stat-icon" style="background:#c0392b"><i class="bi bi-x-circle"></i></div>
+              <div class="hero-stat-icon" style="background:#2C3E50"><i class="bi bi-geo-alt"></i></div>
               <div>
-                <div class="hero-stat-num" th:text="${sinStock}">1</div>
-                <div class="hero-stat-lbl">Productos sin stock</div>
+                <div class="hero-stat-num" style="font-size:1.15rem;color:#fff;">Nuestra Ubicación</div>
+                <div class="hero-stat-lbl" th:text="${direccion}">Av. Industrial 342, Lima, Perú</div>
               </div>
             </div>
             <div class="hero-stat-row">
-              <div class="hero-stat-icon" style="background:#27ae60"><i class="bi bi-receipt"></i></div>
+              <div class="hero-stat-icon" style="background:#2c3e50"><i class="bi bi-telephone"></i></div>
               <div>
-                <div class="hero-stat-num">Activo</div>
-                <div class="hero-stat-lbl">Sistema en línea · Puerto 8081</div>
+                <div class="hero-stat-num" style="font-size:1.15rem;color:#fff;">Central Telefónica</div>
+                <div class="hero-stat-lbl" th:text="${telefono}">(01) 456-7890</div>
               </div>
             </div>
           </div>
@@ -86,31 +73,31 @@
 
   <!-- ── ACCESOS RÁPIDOS ── -->
   <section class="container my-5">
-    <div class="row g-4 text-center">
+    <div class="row g-4 justify-content-center text-center">
       <div class="col-6 col-md-3">
-        <a th:href="@{/productos}" class="text-decoration-none">
+        <a th:href="@{/nosotros}" class="text-decoration-none">
           <div class="acceso-card">
-            <i class="bi bi-box-seam fs-2 text-danger"></i>
-            <p class="oswald mt-2 mb-0" style="font-size:1.1rem">INVENTARIO</p>
-            <small class="text-muted" th:text="${totalProductos} + ' productos'">12 productos</small>
-          </div>
-        </a>
-      </div>
-      <div class="col-6 col-md-3">
-        <a th:href="@{/ventas/nuevo}" class="text-decoration-none">
-          <div class="acceso-card">
-            <i class="bi bi-cart-plus fs-2 text-danger"></i>
-            <p class="oswald mt-2 mb-0" style="font-size:1.1rem">NUEVA VENTA</p>
-            <small class="text-muted">Registrar venta</small>
+            <i class="bi bi-info-circle-fill fs-2 text-danger"></i>
+            <p class="oswald mt-2 mb-0" style="font-size:1.1rem">NOSOTROS</p>
+            <small class="text-muted">Quiénes somos</small>
           </div>
         </a>
       </div>
       <div class="col-6 col-md-3">
         <a th:href="@{/contacto}" class="text-decoration-none">
           <div class="acceso-card">
-            <i class="bi bi-envelope fs-2 text-danger"></i>
+            <i class="bi bi-envelope-fill fs-2 text-danger"></i>
             <p class="oswald mt-2 mb-0" style="font-size:1.1rem">CONTACTO</p>
-            <small class="text-muted">Información de contacto</small>
+            <small class="text-muted">Canales de soporte</small>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a th:href="@{/login}" class="text-decoration-none">
+          <div class="acceso-card">
+            <i class="bi bi-shield-lock-fill fs-2 text-danger"></i>
+            <p class="oswald mt-2 mb-0" style="font-size:1.1rem">INTRANET</p>
+            <small class="text-muted">Acceso del personal</small>
           </div>
         </a>
       </div>

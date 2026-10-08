@@ -2,13 +2,16 @@ package edu.pe.utp.marcodesarrolloweb.ferrovoz.controller;
 
 import edu.pe.utp.marcodesarrolloweb.ferrovoz.dto.ClienteDTO;
 import edu.pe.utp.marcodesarrolloweb.ferrovoz.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/clientes")
@@ -37,7 +40,14 @@ public class ClienteController {
     }
 
     @PostMapping("/registrar")
-    public String registrar(@ModelAttribute ClienteDTO dto, RedirectAttributes ra) {
+    public String registrar(@Valid @ModelAttribute ClienteDTO dto, BindingResult result, RedirectAttributes ra) {
+        if (result.hasErrors()) {
+            String errores = result.getFieldErrors().stream()
+                .map(e -> e.getDefaultMessage())
+                .collect(Collectors.joining(". "));
+            ra.addFlashAttribute("errorMsg", errores);
+            return "redirect:/clientes";
+        }
         try {
             clienteService.registrar(dto);
             ra.addFlashAttribute("successMsg", "Cliente registrado correctamente.");
@@ -48,7 +58,14 @@ public class ClienteController {
     }
 
     @PostMapping("/editar")
-    public String editar(@ModelAttribute ClienteDTO dto, RedirectAttributes ra) {
+    public String editar(@Valid @ModelAttribute ClienteDTO dto, BindingResult result, RedirectAttributes ra) {
+        if (result.hasErrors()) {
+            String errores = result.getFieldErrors().stream()
+                .map(e -> e.getDefaultMessage())
+                .collect(Collectors.joining(". "));
+            ra.addFlashAttribute("errorMsg", errores);
+            return "redirect:/clientes";
+        }
         try {
             clienteService.actualizar(dto);
             ra.addFlashAttribute("successMsg", "Cliente actualizado correctamente.");

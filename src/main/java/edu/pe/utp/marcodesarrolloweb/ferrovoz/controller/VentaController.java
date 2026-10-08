@@ -61,6 +61,7 @@ public class VentaController {
                                  @RequestParam("cantidad") List<Integer> cantidad,
                                  @RequestParam(value = "metodo", required = false) String metodo,
                                  @RequestParam(value = "observaciones", required = false) String observaciones,
+                                 java.security.Principal principal,
                                  Model model) {
         try {
             if (clienteNombre == null || clienteNombre.isBlank() || clienteDni == null || clienteDni.isBlank()) {
@@ -86,7 +87,8 @@ public class VentaController {
                 clienteRepo.save(cliente);
             }
 
-            Venta ventaRegistrada = ventaService.registrarFromForm(cliente.getId(), productoId, cantidad, metodo, observaciones);
+            String username = (principal != null) ? principal.getName() : null;
+            Venta ventaRegistrada = ventaService.registrarFromForm(cliente.getId(), productoId, cantidad, metodo, observaciones, username);
             model.addAttribute("v", ventaRegistrada);
         } catch (Exception e) {
             model.addAttribute("errorMsg", e.getMessage());
